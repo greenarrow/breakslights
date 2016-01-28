@@ -12,7 +12,34 @@ struct machine m;
 
 void setup()
 {
+#ifndef POSIX
+	serial_init(9600);
+
+	/* FIXME: select most appropriate frequency based on min / max desired
+	* speeds; also consider logarithmic speeds. */
+
+	/* FIXME: ensure bytes are not lost in serial communications. */
+
+	/* initialize timer1 */
+	noInterrupts();
+	TCCR1A = 0;
+	TCCR1B = 0;
+	TCNT1  = 0;
+	OCR1A = 1116;		/* compare match register 16MHz/256/2Hz */
+	TCCR1B |= (1 << WGM12);	/* CTC mode */
+	TCCR1B |= (1 << CS12);	/* 256 prescaler */
+	TIMSK1 |= (1 << OCIE1A);	/* enable timer compare interrupt */
+	interrupts();
+	#endif
 }
+
+#ifndef POSIX
+/* timer compare interrupt service routine */
+ISR(TIMER1_COMPA_vect)
+{
+	machine_tick(&m);
+}
+#endif
 
 void loop()
 {
