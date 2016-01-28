@@ -9,7 +9,8 @@ endif
 VALGRIND = valgrind -q --error-exitcode=1 --leak-check=yes \
 	--undef-value-errors=yes --show-reachable=yes --log-file=/dev/null
 
-REGRESSION_TESTS = tests/fills.lc tests/strobe.lc tests/chase.lc
+REGRESSION_TESTS = tests/fills.lc tests/strobe.lc tests/chase.lc \
+	tests/mirror.lc
 
 .PHONY:		all test clean
 
