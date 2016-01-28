@@ -32,7 +32,7 @@ struct animation *animation_new()
 	a->rotation = 0;
 	a->mirror = false;
 
-	a->step = 0;
+	a->step = 1;
 	a->speed = 0;
 
 	a->reverse = false;
