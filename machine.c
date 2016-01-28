@@ -57,6 +57,8 @@ void machine_set_rings(struct machine *m, const int n)
 #ifndef POSIX
 	interrupts();
 #endif
+
+	m->dirty = true;
 }
 
 void machine_set_animations(struct machine *m, const int n)
@@ -80,6 +82,8 @@ void machine_set_animations(struct machine *m, const int n)
 #ifndef POSIX
 	interrupts();
 #endif
+
+	m->dirty = true;
 }
 
 struct ring *machine_get_ring(struct machine *m, byte i)
