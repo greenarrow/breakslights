@@ -5,11 +5,17 @@
 #include "config.h"
 #include "animation.h"
 
+#ifndef POSIX
+#include "pixel.h"
+#endif
+
 struct ring {
 	byte animation;
 
 #ifdef POSIX
 	struct colour pixels[RING_PIXELS];
+#else
+	struct pixel pixels;
 #endif
 };
 

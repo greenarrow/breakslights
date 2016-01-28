@@ -9,6 +9,10 @@
 #include "animation.h"
 #include "ring.h"
 
+#ifndef POSIX
+#include "pixel.h"
+#endif
+
 void ring_flush(struct ring *r, byte addr)
 {
 #ifdef POSIX
@@ -24,6 +28,8 @@ void ring_flush(struct ring *r, byte addr)
 	}
 
 	printf("\n");
+#else
+	pixel_flush(&r->pixels);
 #endif
 }
 
@@ -36,6 +42,10 @@ struct ring *ring_new()
 
 	r->animation = 0;
 
+#ifndef POSIX
+	pixel_init(&r->pixels, RING_PIXELS);
+#endif
+
 	return r;
 }
 
@@ -47,6 +57,8 @@ static void setpixel(struct ring *r, byte p, struct colour c)
 
 #ifdef POSIX
 	r->pixels[p] = c;
+#else
+	pixel_set(&r->pixels, p, c);
 #endif
 }
 
