@@ -155,6 +155,13 @@ static int handle_animation(char **cursor, char cmd, struct animation *a)
 		a->mirror = readbool(cursor);
 		break;
 
+	case 'V':
+		if (a == NULL)
+			return -1;
+
+		a->frame++;
+		break;
+
 	default:
 		return -1;
 	}
