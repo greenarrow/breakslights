@@ -11,27 +11,27 @@ enum property {
 };
 
 struct animation {
-	struct colour fg;
-	struct colour bg;
+	volatile struct colour fg;
+	volatile struct colour bg;
 
-	enum property animate;
+	volatile enum property animate;
 
 	/* static pattern properties */
-	byte segments;
-	byte fill;
-	byte offset;
-	byte rotation;
-	boolean mirror;
+	volatile byte segments;
+	volatile byte fill;
+	volatile byte offset;
+	volatile byte rotation;
+	volatile boolean mirror;
 
 	/* animation properties */
-	byte step;
-	byte speed;
-	boolean reverse;
-	boolean bounce;
+	volatile byte step;
+	volatile byte speed;
+	volatile boolean reverse;
+	volatile boolean bounce;
 
 	/* current frame */
-	byte frame;
-	boolean backwards;
+	volatile byte frame;
+	volatile boolean backwards;
 };
 
 struct animation *animation_new();

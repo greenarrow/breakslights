@@ -13,14 +13,14 @@ struct machine {
 	struct animation **animations;
 	byte nanimations;
 
-	boolean dirty;
+	volatile boolean dirty;
 
 	/* modal animation state */
 	byte chase_index;
 	boolean strobe_on;
 
-	byte chase_speed;
-	byte strobe_speed;
+	volatile byte chase_speed;
+	volatile byte strobe_speed;
 };
 
 void machine_set_rings(struct machine *m, const int n);
