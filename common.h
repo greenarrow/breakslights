@@ -15,8 +15,14 @@
 	fprintf(stderr, __VA_ARGS__); \
 	fputc('\n', stderr); \
 }
+#define output(...) { \
+	fprintf(stdout, "%s:%d: ", __FILE__, __LINE__); \
+	fprintf(stdout, __VA_ARGS__); \
+	fputc('\n', stdout); \
+}
 #else
 #define error(...) { serprint(__VA_ARGS__); };
+#define output(...) { serprint(__VA_ARGS__); };
 #endif
 
 #ifdef DEBUG
