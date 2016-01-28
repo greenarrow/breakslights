@@ -46,7 +46,7 @@ void machine_set_rings(struct machine *m, const int n)
 	m->nrings = n;
 
 	for (i = 0; i < n; i++)
-		m->rings[i] = ring_new();
+		m->rings[i] = ring_new(PIN_START + i);
 
 	debug("set %d rings", n);
 }

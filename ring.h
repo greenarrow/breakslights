@@ -19,7 +19,7 @@ struct ring {
 #endif
 };
 
-struct ring *ring_new();
+struct ring *ring_new(byte pin);
 void ring_render(struct ring *r, struct animation *a);
 void ring_flush(struct ring *r, byte addr);
 

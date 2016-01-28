@@ -33,7 +33,7 @@ void ring_flush(struct ring *r, byte addr)
 #endif
 }
 
-struct ring *ring_new()
+struct ring *ring_new(byte pin)
 {
 	struct ring *r = malloc(sizeof(struct ring));
 
@@ -43,7 +43,7 @@ struct ring *ring_new()
 	r->animation = 0;
 
 #ifndef POSIX
-	pixel_init(&r->pixels, RING_PIXELS);
+	pixel_init(&r->pixels, pin);
 #endif
 
 	return r;
