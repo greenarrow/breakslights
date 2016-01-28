@@ -66,7 +66,7 @@ static void move(struct animation *a, byte size)
 			a->frame = new + size;
 		}
 
-		goto finish;
+		return;
 	}
 
 	if (new > size) {
@@ -77,13 +77,11 @@ static void move(struct animation *a, byte size)
 			a->frame -= size;
 		}
 
-		goto finish;
+		return;
 	}
 
+	debug("new %d", new);
 	a->frame = new;
-
-finish:
-	debug("frame %d", new);
 }
 
 void animation_step(struct animation *a)
