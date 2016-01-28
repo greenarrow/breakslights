@@ -1,0 +1,26 @@
+A[nnn] [F|B][rrggbb]    colour
+A[nnn] I[N|F|O|R]       animation
+A[nnn] S[000-255]       segments
+A[nnn] L[000-255]       fill
+A[nnn] O[000-255]       offset
+A[nnn] N[000-255]       rotation
+A[nnn] Z[0|1]           mirror
+A[nnn] P[000-255]       step size
+A[nnn] D[000-255]       animation speed
+A[nnn] R[0|1]           reverse
+A[nnn] E[0|1]           bounce
+
+A[nnn] C                clear properties
+A[nnn] Z                reset to start
+A[nnn] F                advance frame
+
+MR[000-255]             set # rings
+MA[000-255]             set # animations
+MB[0|1]                 blackout
+MD[000-255]             chase speed
+MS[000-255]             strobe speed
+MF                      advance chase
+ME                      system restart
+MT                      manual tick
+
+R[nnn] N[nnn]           assign animation
