@@ -1,7 +1,12 @@
 #ifndef COMMON_H
 #define COMMON_H
 
+#ifdef POSIX
 #include <stdio.h>
+#else
+#include "serial.h"
+#endif
+
 #include <stdarg.h>
 
 #ifdef POSIX
@@ -10,6 +15,8 @@
 	fprintf(stderr, __VA_ARGS__); \
 	fputc('\n', stderr); \
 }
+#else
+#define error(...) { serprint(__VA_ARGS__); };
 #endif
 
 #ifdef DEBUG
@@ -19,6 +26,8 @@
 	fprintf(stderr, __VA_ARGS__); \
 	fputc('\n', stderr); \
 }
+#else
+#define debug(...) { serprint(__VA_ARGS__); };
 #endif
 #else
 #define debug(...) {}
