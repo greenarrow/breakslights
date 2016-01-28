@@ -28,6 +28,8 @@
 #include <stdbool.h>
 typedef bool boolean;
 typedef unsigned char byte;
+#else
+#include <Arduino.h>
 #endif
 
 struct colour {
