@@ -4,50 +4,58 @@ import re
 import sys
 import serial
 
-def getheader(s):
-    header = s.readline().rstrip()
+class Breakslights(object):
+    def __init__(self, port):
+        self.serial = serial.Serial(port, 9600)
 
-    if not header.startswith("breakslights"):
-        sys.stderr.write("bad header: %s\n" % header)
-        return False
+        header = self.serial.readline().rstrip()
 
-    return True
+        if not header.startswith("breakslights"):
+            self.close()
+            raise RuntimeError("bad header '%s'" % header)
 
-def getresponse(s):
-    while True:
-        reply = s.readline().rstrip("\r\n")
+    def close(self):
+        self.serial.close()
 
-        if re.match(r"^\d+$", reply) is not None:
-            return int(reply)
+    def _getresponse(self):
+        while True:
+            reply = self.serial.readline().rstrip("\r\n")
 
-        sys.stderr.write("recv: %s\n" % reply)
+            if re.match(r"^\d+$", reply) is not None:
+                return int(reply)
 
-def loop(s):
+            sys.stderr.write("recv: %s\n" % reply)
+
+    def send(self, line):
+        self.serial.write(line)
+        sys.stderr.write("sent: %s\n" % line)
+
+        if self._getresponse() != 0:
+            raise RuntimeError("bad response")
+
+def main():
+    b = Breakslights("/dev/ttyACM0")
+
     while True:
         line = sys.stdin.readline()
+        retries = 3
 
         if len(line) == 0:
             break
 
-        s.write(line)
-        sys.stderr.write("sent: %s\n" % line)
+        while True:
+            try:
+                b.send(line)
+                break
 
-        if getresponse(s) != 0:
-            sys.stderr.write("bad response\n")
-            break
+            except RuntimeError:
+                if retries > 0:
+                    retries -= 1
+                    continue
+
+                raise
 
         sys.stderr.write("ok\n")
 
-def main():
-    s = serial.Serial("/dev/ttyACM0", 9600)
-
-    if getheader(s):
-        sys.stderr.write("init ok\n")
-        loop(s)
-
-    else:
-        sys.stderr.write("init error\n")
-
-    s.close()
-
-main()
+if __name__ == "__main__":
+    main()
