@@ -84,12 +84,13 @@ static void draw(struct ring *r, struct animation *a, unsigned int fill,
 	unsigned int start, stop;
 	byte i;
 
-	debug("draw %u %u %u", fill, offset, rotation);
-
 	start = a->offset + a->rotation + offset + rotation;
 
 	while (start >= RING_PIXELS)
 		start -= RING_PIXELS;
+
+	if (mirror)
+		start = start + RING_PIXELS / a->segments - fill;
 
 	stop = start + fill;
 
@@ -142,6 +143,6 @@ void ring_render(struct ring *r, struct animation *a)
 	for (i = 0; i < a->segments; i++) {
 		draw(r, a, fill, offset,
 				rotation + i * RING_PIXELS / a->segments,
-				false);
+				a->mirror && (i % 2));
 	}
 }
