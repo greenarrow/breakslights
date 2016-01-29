@@ -8,6 +8,7 @@ struct pixel {
 };
 
 void pixel_init(struct pixel *p, byte pin);
+void pixel_destroy(struct pixel *p);
 void pixel_set(struct pixel *p, byte n, struct colour c);
 void pixel_flush(struct pixel *p);
 

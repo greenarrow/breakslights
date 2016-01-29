@@ -23,6 +23,11 @@ void pixel_init(struct pixel *p, byte pin)
 	p->np = np;
 }
 
+void pixel_destroy(struct pixel *p)
+{
+	delete p->np;
+}
+
 void pixel_set(struct pixel *p, byte n, struct colour c)
 {
 	((Adafruit_NeoPixel *)p->np)->setPixelColor(n,
