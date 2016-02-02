@@ -30,7 +30,7 @@ void setup()
 	TCCR1B |= (1 << CS12);	/* 256 prescaler */
 	TIMSK1 |= (1 << OCIE1A);	/* enable timer compare interrupt */
 	interrupts();
-	#endif
+#endif
 }
 
 #ifndef POSIX
