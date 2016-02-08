@@ -1,3 +1,4 @@
+#include <avr/delay.h>
 
 /*
  This is an example of how simple driving a Neopixel can be
