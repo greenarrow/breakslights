@@ -10,7 +10,7 @@
 #endif
 
 struct ring {
-	volatile byte animation;
+	byte animation;
 
 #ifdef POSIX
 	struct colour pixels[RING_PIXELS];

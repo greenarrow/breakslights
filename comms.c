@@ -48,7 +48,7 @@ static byte readhex(char **cursor)
 	return strtol(buffer, NULL, 16);
 }
 
-static void readcolour(char **cursor, volatile struct colour *c)
+static void readcolour(char **cursor, struct colour *c)
 {
 	c->r = readhex(cursor);
 	c->g = readhex(cursor);
