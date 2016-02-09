@@ -19,6 +19,14 @@ void serial_println(const char *line)
 	Serial.println(line);
 }
 
+byte serial_getbyte()
+{
+	if (Serial.available() == 0)
+		return 0;
+
+	return Serial.read();
+}
+
 byte serial_getdelim(const char delim, char *buf, size_t len)
 {
 	byte nb = 0;
