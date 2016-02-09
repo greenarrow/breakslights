@@ -171,7 +171,7 @@ void machine_tick(struct machine *m)
 
 	m->clock++;
 
-	if (m->strobe_on && m->strobe_speed == 0) {
+	if (!m->strobe_on && m->strobe_speed == 0) {
 		m->strobe_on = true;
 		m->dirty = true;
 	}
