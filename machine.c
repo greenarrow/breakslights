@@ -169,6 +169,7 @@ void machine_tick(struct machine *m)
 {
 	int i;
 
+	m->dirty = false;
 	m->clock++;
 
 	if (!m->strobe_on && m->strobe_speed == 0) {
@@ -207,10 +208,16 @@ void machine_tick(struct machine *m)
 				m->strobe_on ? machine_get_animation(m,
 				chased(m, i)->animation) : NULL);
 		}
-
-		for (i = 0; i < m->nrings; i++)
-			ring_flush(m->rings[i], i);
 	}
+}
 
-	m->dirty = false;
+void machine_flush(struct machine *m)
+{
+	int i;
+
+	if (!m->dirty)
+		return;
+
+	for (i = 0; i < m->nrings; i++)
+		ring_flush(m->rings[i], i);
 }

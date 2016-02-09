@@ -38,6 +38,7 @@ void setup()
 ISR(TIMER1_COMPA_vect)
 {
 	machine_tick(&m);
+	machine_flush(&m);
 }
 #endif
 

@@ -30,6 +30,7 @@ struct animation *machine_get_animation(struct machine *m, byte i);
 void machine_init(struct machine *m);
 void machine_destroy(struct machine *m);
 void machine_tick(struct machine *m);
+void machine_flush(struct machine *m);
 void machine_assign(struct machine *m, struct ring *r, byte n);
 
 #endif

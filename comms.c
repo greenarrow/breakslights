@@ -212,6 +212,7 @@ static int handle_modal(struct machine *m, char **cursor, char cmd)
 		/* manual tick */
 		debug("manual tick");
 		machine_tick(m);
+		machine_flush(m);
 		break;
 
 	/* FIXME add animations sync to call animation_reset() on all */
