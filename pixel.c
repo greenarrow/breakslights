@@ -36,12 +36,9 @@ void pixel_flush(struct pixel *p)
 	int i;
 
 #ifndef POSIX
-	cli();
-
 	for (i = 0; i < RING_PIXELS * 3; i++)
 		sendByte(p->pixels[i]);
 
-	sei();
 	show();
 #endif
 }
