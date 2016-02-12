@@ -34,7 +34,20 @@ class Breakslights(object):
             raise RuntimeError("bad response")
 
 def main():
-    b = Breakslights("/dev/ttyACM0")
+    retries = 3
+
+    while True:
+        try:
+            b = Breakslights("/dev/ttyACM0")
+
+        except RuntimeError:
+            if retries > 0:
+                retries -= 1
+                continue
+
+            raise
+
+        break
 
     while True:
         line = sys.stdin.readline()
