@@ -27,37 +27,6 @@ byte serial_getbyte()
 	return Serial.read();
 }
 
-byte serial_getdelim(const char delim, char *buf, size_t len)
-{
-	byte nb = 0;
-	int b;
-
-	for (;;) {
-		if (nb >= len)
-			return 0;
-
-		if (Serial.available() == 0) {
-			delay(1);
-			continue;
-		}
-
-		b = Serial.read();
-
-		if (b == -1)
-			return 0;
-
-		buf[nb] = b;
-		nb++;
-
-		if (b == delim) {
-			buf[nb] = '\0';
-			return nb;
-		}
-	}
-
-	return nb;
-}
-
 void serprint(const char *fmt, ...)
 {
 	char line[256];
