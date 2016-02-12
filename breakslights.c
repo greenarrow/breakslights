@@ -14,14 +14,14 @@ void setup()
 {
 #ifndef POSIX
 	serial_init(9600);
-
 	/* FIXME: select most appropriate frequency based on min / max desired
 	* speeds; also consider logarithmic speeds. */
 
 	/* FIXME: ensure bytes are not lost in serial communications. */
 
-	/* initialize timer1 */
 	noInterrupts();
+
+	/* initialize timer1 */
 	TCCR1A = 0;
 	TCCR1B = 0;
 	TCNT1  = 0;
@@ -29,6 +29,14 @@ void setup()
 	TCCR1B |= (1 << WGM12);	/* CTC mode */
 	TCCR1B |= (1 << CS12);	/* 256 prescaler */
 	TIMSK1 |= (1 << OCIE1A);	/* enable timer compare interrupt */
+
+	/*
+	 * Disable unrequited timers to prevent interruption; this will break
+	 * millis().
+	 */
+	TCCR0B = 0x0;
+	TCCR2B = 0x0;
+
 	interrupts();
 #endif
 }
