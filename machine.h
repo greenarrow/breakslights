@@ -13,8 +13,6 @@ struct machine {
 	struct animation **animations;
 	byte nanimations;
 
-	boolean dirty;
-
 	/* modal animation state */
 	byte chase_index;
 	boolean strobe_on;

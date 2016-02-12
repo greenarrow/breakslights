@@ -59,8 +59,6 @@ void machine_set_rings(struct machine *m, const int n)
 #ifndef POSIX
 	interrupts();
 #endif
-
-	m->dirty = true;
 }
 
 void machine_set_animations(struct machine *m, const int n)
@@ -84,8 +82,6 @@ void machine_set_animations(struct machine *m, const int n)
 #ifndef POSIX
 	interrupts();
 #endif
-
-	m->dirty = true;
 }
 
 struct ring *machine_get_ring(struct machine *m, byte i)
@@ -123,8 +119,6 @@ void machine_init(struct machine *m)
 
 	m->chase_speed = 0;
 	m->strobe_speed = 0;
-
-	m->dirty = true;
 }
 
 void machine_destroy(struct machine *m)
@@ -139,7 +133,6 @@ void machine_assign(struct machine *m, struct ring *r, byte n)
 		return;
 
 	r->animation = n;
-	m->dirty = true;
 
 	debug("assign animation %d", n);
 }
@@ -169,18 +162,13 @@ void machine_tick(struct machine *m)
 {
 	int i;
 
-	m->dirty = false;
 	m->clock++;
 
-	if (!m->strobe_on && m->strobe_speed == 0) {
+	if (!m->strobe_on && m->strobe_speed == 0)
 		m->strobe_on = true;
-		m->dirty = true;
-	}
 
-	if (tock(m, m->strobe_speed)) {
+	if (tock(m, m->strobe_speed))
 		m->strobe_on = !m->strobe_on;
-		m->dirty = true;
-	}
 
 	/* FIXME: implement reflection */
 	if (tock(m, m->chase_speed)) {
@@ -188,35 +176,26 @@ void machine_tick(struct machine *m)
 
 		if (m->chase_index >= m->nrings)
 			m->chase_index = 0;
-
-		m->dirty = true;
 	}
 
 	/* always step animations even if not visible */
 	for (i = 0; i < m->nanimations; i++) {
-		if (tock(m, m->animations[i]->speed)) {
+		if (tock(m, m->animations[i]->speed))
 			animation_step(m->animations[i]);
-			m->dirty = true;
-		}
 	}
 
 	/* FIXME: add more granular redraw */
-	if (m->dirty) {
-		for (i = 0; i < m->nrings; i++) {
-			/* FIXME: chase mapping */
-			ring_render(m->rings[i],
-				m->strobe_on ? machine_get_animation(m,
-				chased(m, i)->animation) : NULL);
-		}
+	for (i = 0; i < m->nrings; i++) {
+		/* FIXME: chase mapping */
+		ring_render(m->rings[i],
+			m->strobe_on ? machine_get_animation(m,
+			chased(m, i)->animation) : NULL);
 	}
 }
 
 void machine_flush(struct machine *m)
 {
 	int i;
-
-	if (!m->dirty)
-		return;
 
 	for (i = 0; i < m->nrings; i++)
 		ring_flush(m->rings[i], i);
