@@ -34,11 +34,12 @@ void setup()
 }
 
 #ifndef POSIX
+volatile boolean draw = false;
+
 /* timer compare interrupt service routine */
 ISR(TIMER1_COMPA_vect)
 {
-	machine_tick(&m);
-	machine_flush(&m);
+	draw = true;
 }
 #endif
 
@@ -50,6 +51,7 @@ void loop()
 #else
 	char buf[256];
 	byte nb = 0;
+	byte b;
 #endif
 	debug("init");
 	machine_init(&m);
@@ -68,18 +70,30 @@ void loop()
 
 		handle_line(&m, line);
 #else
-	nb = serial_getdelim('\n', buf, 255);
+		b = serial_getbyte();
 
-	if (nb == 0) {
-		error("null read");
-		continue;
-	}
+		if (b > 0) {
+			buf[nb] = b;
+			nb++;
+		}
 
-	if (handle_line(&m, buf) == -1) {
-		output("1");
-	} else {
-		output("0");
-	}
+		if (b == '\n') {
+			buf[nb] = '\0';
+
+			if (handle_line(&m, buf) == -1) {
+				output("1");
+			} else {
+				output("0");
+			}
+
+			nb = 0;
+		}
+
+		if (draw) {
+			machine_flush(&m);
+			machine_tick(&m);
+			draw = false;
+		}
 #endif
 	}
 
