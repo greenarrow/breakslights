@@ -1,4 +1,5 @@
-#include <avr/delay.h>
+#include <Arduino.h>
+#include <util/delay.h>
 
 /*
  This is an example of how simple driving a Neopixel can be
@@ -40,7 +41,7 @@
 // Actually send a bit to the string. We must to drop to asm to enusre that the complier does
 // not reorder things and make it so the delay happens in the wrong place.
 
-void sendBit( bool bitVal ) {
+static void sendBit( boolean bitVal ) {
   
     if (  bitVal ) {				// 0 bit
       
@@ -96,8 +97,9 @@ void sendBit( bool bitVal ) {
 
   
 void sendByte( unsigned char byte ) {
-    
-    for( unsigned char bit = 0 ; bit < 8 ; bit++ ) {
+    unsigned char bit;
+
+    for( bit = 0 ; bit < 8 ; bit++ ) {
       
       sendBit( bitRead( byte , 7 ) );                // Neopixel wants bit in highest-to-lowest order
                                                      // so send highest bit (bit #7 in an 8-bit byte since they start at 0)
