@@ -1,10 +1,11 @@
 #ifndef PIXEL_H
 #define PIXEL_H
 
+#include "config.h"
 #include "common.h"
 
 struct pixel {
-	void *np;
+	unsigned char pixels[RING_PIXELS * 3];
 };
 
 void pixel_init(struct pixel *p, byte pin);

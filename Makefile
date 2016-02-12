@@ -22,7 +22,7 @@ default:	breakslights test
 
 test:		$(addsuffix .reg,$(REGRESSION_TESTS))
 
-breakslights:	ring.o animation.o comms.o machine.o breakslights.o
+breakslights:	pixel.o ring.o animation.o comms.o machine.o breakslights.o
 
 clean:
 	rm -f *.o breakslights
