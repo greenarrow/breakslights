@@ -1,5 +1,6 @@
 /*
  */
+#include <stdlib.h>
 #include "config.h"
 
 #ifndef POSIX
@@ -8,13 +9,22 @@
 
 #include "pixel.h"
 
-void pixel_init(struct pixel *p, byte pin)
+void pixel_init(struct pixel *p, byte size)
 {
 	int i;
 
 #ifndef POSIX
 	ledsetup();
 #endif
+	debug("buffer size %d\n", sizeof(unsigned char) * 3 * size + 1);
+
+	if (size == 0) {
+		p->pixels = NULL;
+		return;
+	}
+
+	p->len = size;
+	p->pixels = malloc(sizeof(unsigned char) * 3 * size + 1);
 
 	for (i = 0; i < RING_PIXELS * 3; i++)
 		p->pixels[i] = 0;
@@ -22,6 +32,11 @@ void pixel_init(struct pixel *p, byte pin)
 
 void pixel_destroy(struct pixel *p)
 {
+	if (p->pixels == NULL)
+		return;
+
+	free(p->pixels);
+	p->pixels = NULL;
 }
 
 void pixel_set(struct pixel *p, byte n, struct colour c)

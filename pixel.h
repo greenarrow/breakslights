@@ -5,7 +5,8 @@
 #include "common.h"
 
 struct pixel {
-	unsigned char pixels[RING_PIXELS * 3];
+	byte len;
+	unsigned char *pixels;
 };
 
 void pixel_init(struct pixel *p, byte pin);
