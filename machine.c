@@ -14,10 +14,8 @@ static void free_rings(struct machine *m)
 {
 	int i;
 
-	for (i = 0; i < m->nrings; i++) {
-		ring_destroy(m->rings[i]);
+	for (i = 0; i < m->nrings; i++)
 		free(m->rings[i]);
-	}
 
 	if (m->rings)
 		free(m->rings);

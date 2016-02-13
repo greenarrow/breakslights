@@ -20,7 +20,6 @@ struct ring {
 };
 
 struct ring *ring_new(byte pin);
-void ring_destroy(struct ring *r);
 void ring_render(struct ring *r, struct animation *a);
 void ring_flush(struct ring *r, byte addr);
 

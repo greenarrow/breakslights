@@ -49,13 +49,6 @@ struct ring *ring_new(byte pin)
 	return r;
 }
 
-void ring_destroy(struct ring *r)
-{
-#ifndef POSIX
-	pixel_destroy(&r->pixels);
-#endif
-}
-
 static void setpixel(struct ring *r, byte p, struct colour c)
 {
 	/* wrap around ring */
