@@ -5,22 +5,14 @@
 #include "config.h"
 #include "animation.h"
 
-#ifndef POSIX
 #include "pixel.h"
-#endif
 
 struct ring {
+	byte offset;
 	byte animation;
-
-#ifdef POSIX
-	struct colour pixels[RING_PIXELS];
-#else
-	struct pixel pixels;
-#endif
 };
 
-struct ring *ring_new(byte pin);
-void ring_render(struct ring *r, struct animation *a);
-void ring_flush(struct ring *r, byte addr);
+struct ring *ring_new(byte offset);
+void ring_render(struct pixel *p, struct ring *r, struct animation *a);
 
 #endif
