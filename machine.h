@@ -2,10 +2,13 @@
 #define MACHINE_H
 
 #include "common.h"
+#include "pixel.h"
 
 struct machine {
 	/* system state */
 	unsigned int clock;
+
+	struct pixel pixels;
 
 	struct ring **rings;
 	byte nrings;

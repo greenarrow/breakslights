@@ -46,7 +46,10 @@ void machine_set_rings(struct machine *m, const int n)
 	m->nrings = n;
 
 	for (i = 0; i < n; i++)
-		m->rings[i] = ring_new(PIN_START + i);
+		m->rings[i] = ring_new(i);
+
+	pixel_destroy(&m->pixels);
+	pixel_init(&m->pixels, RING_PIXELS * n);
 
 	debug("set %d rings", n);
 }
@@ -101,12 +104,15 @@ void machine_init(struct machine *m)
 
 	m->chase_speed = 0;
 	m->strobe_speed = 0;
+
+	pixel_init(&m->pixels, 0);
 }
 
 void machine_destroy(struct machine *m)
 {
 	free_rings(m);
 	free_animations(m);
+	pixel_destroy(&m->pixels);
 }
 
 void machine_assign(struct machine *m, struct ring *r, byte n)
@@ -169,7 +175,7 @@ void machine_tick(struct machine *m)
 	/* FIXME: add more granular redraw */
 	for (i = 0; i < m->nrings; i++) {
 		/* FIXME: chase mapping */
-		ring_render(m->rings[i],
+		ring_render(&m->pixels, m->rings[i],
 			m->strobe_on ? machine_get_animation(m,
 			chased(m, i)->animation) : NULL);
 	}
@@ -177,8 +183,5 @@ void machine_tick(struct machine *m)
 
 void machine_flush(struct machine *m)
 {
-	int i;
-
-	for (i = 0; i < m->nrings; i++)
-		ring_flush(m->rings[i], i);
+	pixel_flush(&m->pixels);
 }
