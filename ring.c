@@ -15,20 +15,7 @@
 
 void ring_flush(struct ring *r, byte addr)
 {
-#ifdef POSIX
-	int i;
-
-	printf("%.2x ", addr);
-
-	for (i = 0; i < RING_PIXELS; i++) {
-		printf("%.2x%.2x%.2x", r->pixels[i].r, r->pixels[i].g,
-							r->pixels[i].b);
-		if (i + 1 < RING_PIXELS)
-			printf(" ");
-	}
-
-	printf("\n");
-#else
+#ifndef POSIX
 	pixel_flush(&r->pixels);
 #endif
 }

@@ -50,7 +50,26 @@ void pixel_flush(struct pixel *p)
 {
 	int i;
 
-#ifndef POSIX
+#ifdef POSIX
+	int r;
+	int s;
+
+	for (r = 0; r < p->len / RING_PIXELS; r++) {
+		printf("%.2x ", r);
+
+		for (i = 0; i < RING_PIXELS; i++) {
+			s = (r * RING_PIXELS) + i;
+
+			printf("%.2x%.2x%.2x", p->pixels[s * 3 + 1],
+					p->pixels[s * 3], p->pixels[s * 3 + 2]);
+
+			if (i + 1 < RING_PIXELS)
+				printf(" ");
+		}
+
+		printf("\n");
+	}
+#else
 	for (i = 0; i < RING_PIXELS * 3; i++)
 		sendByte(p->pixels[i]);
 
