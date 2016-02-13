@@ -42,10 +42,6 @@ void machine_set_rings(struct machine *m, const int n)
 {
 	int i;
 
-#ifndef POSIX
-	noInterrupts();
-#endif
-
 	free_rings(m);
 
 	m->rings = malloc(n * sizeof(struct ring*));
@@ -55,19 +51,11 @@ void machine_set_rings(struct machine *m, const int n)
 		m->rings[i] = ring_new(PIN_START + i);
 
 	debug("set %d rings", n);
-
-#ifndef POSIX
-	interrupts();
-#endif
 }
 
 void machine_set_animations(struct machine *m, const int n)
 {
 	int i;
-
-#ifndef POSIX
-	noInterrupts();
-#endif
 
 	free_animations(m);
 
@@ -78,10 +66,6 @@ void machine_set_animations(struct machine *m, const int n)
 		m->animations[i] = animation_new();
 
 	debug("set %d animations", n);
-
-#ifndef POSIX
-	interrupts();
-#endif
 }
 
 struct ring *machine_get_ring(struct machine *m, byte i)
