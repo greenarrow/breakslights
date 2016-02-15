@@ -41,10 +41,10 @@ void setup()
 #endif
 }
 
-#ifndef POSIX
 volatile boolean draw = false;
 volatile unsigned int missed = 0;
 
+#ifndef POSIX
 /* timer compare interrupt service routine */
 ISR(TIMER1_COMPA_vect)
 {
@@ -57,14 +57,14 @@ ISR(TIMER1_COMPA_vect)
 
 void loop()
 {
-#ifdef POSIX
-	char *line = NULL;
-	size_t len = 0;
-#else
 	char buf[256];
 	byte nb = 0;
 	byte b;
+
+#ifdef POSIX
+	int c;
 #endif
+
 	debug("init");
 	machine_init(&m);
 
@@ -76,19 +76,20 @@ void loop()
 
 	for (;;) {
 		debug("waiting");
-#ifdef POSIX
-		if (getline(&line, &len, stdin) == -1)
-			break;
 
-		handle_line(&m, line);
-#else
 		if (missed > 0) {
 			m.missed += missed;
 			missed = 0;
 		}
+#ifdef POSIX
+		c = getchar();
+		if (c == EOF)
+			break;
 
+		b = c;
+#else
 		b = serial_getbyte();
-
+#endif
 		if (b > 0) {
 			buf[nb] = b;
 			nb++;
@@ -97,11 +98,15 @@ void loop()
 		if (b == '\n') {
 			buf[nb] = '\0';
 
+#ifdef POSIX
+			handle_line(&m, buf);
+#else
 			if (handle_line(&m, buf) == -1) {
 				output("1");
 			} else {
 				output("0");
 			}
+#endif
 
 			nb = 0;
 		}
@@ -111,13 +116,7 @@ void loop()
 			machine_tick(&m);
 			draw = false;
 		}
-#endif
 	}
-
-#ifdef POSIX
-	if (line)
-		free(line);
-#endif
 
 	machine_destroy(&m);
 }
