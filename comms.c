@@ -10,6 +10,70 @@
 #include "ring.h"
 #include "machine.h"
 
+#define DECA 48
+#define DECB 57
+#define HEXA 97
+#define HEXB 102
+
+byte power(byte a, byte b)
+{
+	byte i;
+	byte result = a;
+
+	if (b == 0)
+		return 1;
+
+	for (i = 0; i + 1 < b; i++)
+		result *= a;
+
+	return result;
+}
+
+char chrtobyte(const char c, byte *result, byte base)
+{
+	switch (base) {
+	case 10:
+		if (!(c >= DECA && c <= DECB))
+			return -1;
+
+		*result = c - DECA;
+		break;
+
+	case 16:
+		if (!(c >= DECA && c <= DECB) && !(c >= HEXA && c <= HEXB))
+			return -1;
+
+		if (c <= DECB)
+			*result = c - DECA;
+		else
+			*result = c - HEXA + 10;
+
+		break;
+
+	default:
+		return -1;
+	}
+
+	return 0;
+}
+
+char strtobyte(const char *s, byte len, byte *result, byte base)
+{
+	byte value = 0;
+	byte new;
+	byte i;
+
+	for (i = 0; i < len; i++) {
+		if (chrtobyte(s[i], &new, base) == -1)
+			return -1;
+
+		value += new * power(base, len - i - 1);
+	}
+
+	*result = value;
+	return 0;
+}
+
 static char readchar(char **cursor)
 {
 	char value = *cursor[0];
