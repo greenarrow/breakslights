@@ -43,6 +43,14 @@ def ticked(widget, b, value):
 
     send(b, cmd)
 
+def colour(widget, b, value):
+    new = widget.get_current_color()
+    cmd = "A000 %s%.2x%.2x%.2x\n" % (value,
+                                    new.red * 255 / 65535,
+                                    new.green * 255 / 65535,
+                                    new.blue * 255 / 65535)
+    send(b, cmd)
+
 def enter(widget, b):
     cmd = "%s\n" % widget.get_text()
     widget.set_text("")
@@ -67,7 +75,15 @@ def slider(b, label, prefix, upper):
     return box
 
 def editor(b):
-    e = gtk.HBox(spacing=5)
+    e = gtk.HBox(spacing=10)
+
+    colours = gtk.VBox(spacing=5)
+    e.add(colours)
+
+    for c in ("F", "B"):
+        fg = gtk.ColorSelection()
+        fg.connect("color_changed", colour, b, c)
+        colours.add(fg)
 
     switches = gtk.VBox(spacing=5)
     e.add(switches)
