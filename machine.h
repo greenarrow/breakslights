@@ -22,6 +22,9 @@ struct machine {
 
 	byte chase_speed;
 	byte strobe_speed;
+
+	/* statistics */
+	byte missed;
 };
 
 void machine_set_rings(struct machine *m, const int n);

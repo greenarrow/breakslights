@@ -43,10 +43,14 @@ void setup()
 
 #ifndef POSIX
 volatile boolean draw = false;
+volatile unsigned int missed = 0;
 
 /* timer compare interrupt service routine */
 ISR(TIMER1_COMPA_vect)
 {
+	if (draw && missed < 255)
+		missed++;
+
 	draw = true;
 }
 #endif
@@ -78,6 +82,11 @@ void loop()
 
 		handle_line(&m, line);
 #else
+		if (missed > 0) {
+			m.missed += missed;
+			missed = 0;
+		}
+
 		b = serial_getbyte();
 
 		if (b > 0) {

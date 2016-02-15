@@ -309,6 +309,10 @@ static int handle_modal(struct machine *m, char **cursor, char cmd)
 
 		break;
 
+	case 'I':
+		output("D%.3u\n", m->missed);
+		break;
+
 	case 'F':
 	case 'T':
 		/* manual tick */

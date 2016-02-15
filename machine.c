@@ -105,6 +105,8 @@ void machine_init(struct machine *m)
 	m->chase_speed = 0;
 	m->strobe_speed = 0;
 
+	m->missed = 0;
+
 	pixel_init(&m->pixels, 0);
 }
 
