@@ -92,24 +92,22 @@ static boolean readbool(char **cursor)
 
 static byte readbyte(char **cursor)
 {
-	char buffer[4];
-	strncpy(buffer, *cursor, 3);
-	buffer[3] = '\0';
+	byte result;
 
+	strtobyte(*cursor, 3, &result, 10);
 	*cursor += 3;
 
-	return atoi(buffer);
+	return result;
 }
 
 static byte readhex(char **cursor)
 {
-	char buffer[3];
+	byte result;
 
-	strncpy(buffer, *cursor, 2);
+	strtobyte(*cursor, 2, &result, 16);
 	*cursor += 2;
-	buffer[2] = '\0';
 
-	return strtol(buffer, NULL, 16);
+	return result;
 }
 
 static void readcolour(char **cursor, struct colour *c)
