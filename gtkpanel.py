@@ -35,6 +35,14 @@ def filled(widget, b, value):
     cmd = "A000 I%s\n" % value
     send(b, cmd)
 
+def ticked(widget, b, value):
+    if widget.get_active():
+        cmd = "A000 %s1\n" % value
+    else:
+        cmd = "A000 %s0\n" % value
+
+    send(b, cmd)
+
 def enter(widget, b):
     cmd = "%s\n" % widget.get_text()
     widget.set_text("")
@@ -72,6 +80,11 @@ def editor(b):
         radio = gtk.RadioButton(radio, l)
         radio.connect("toggled", filled, b, c)
         switches.add(radio)
+
+    for c, l in (("Z", "mirror"), ("E", "bounce")):
+        button = gtk.CheckButton(l)
+        button.connect("clicked", ticked, b, c)
+        switches.add(button)
 
     e.add(slider(b, "strobe", "MS", 255))
     e.add(slider(b, "speed", "A000 D", 255))
