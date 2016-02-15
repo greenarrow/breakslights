@@ -90,31 +90,39 @@ static boolean readbool(char **cursor)
 	return false;
 }
 
-static byte readbyte(char **cursor)
+static char readbyte(char **cursor, byte *result)
 {
-	byte result;
+	if (strtobyte(*cursor, 3, result, 10) == -1)
+		return -1;
 
-	strtobyte(*cursor, 3, &result, 10);
 	*cursor += 3;
-
-	return result;
+	return 0;
 }
 
-static byte readhex(char **cursor)
+static char readhex(char **cursor, byte *result)
 {
-	byte result;
+	if (strtobyte(*cursor, 2, result, 16) == -1)
+		return -1;
 
-	strtobyte(*cursor, 2, &result, 16);
 	*cursor += 2;
-
-	return result;
+	return 0;
 }
 
-static void readcolour(char **cursor, struct colour *c)
+static char readcolour(char **cursor, struct colour *result)
 {
-	c->r = readhex(cursor);
-	c->g = readhex(cursor);
-	c->b = readhex(cursor);
+	struct colour tmp;
+
+	if (readhex(cursor, &tmp.r) == -1)
+		return -1;
+
+	if (readhex(cursor, &tmp.g) == -1)
+		return -1;
+
+	if (readhex(cursor, &tmp.b) == -1)
+		return -1;
+
+	*result = tmp;
+	return 0;
 }
 
 static int handle_animation(char **cursor, char cmd, struct animation *a)
@@ -124,14 +132,18 @@ static int handle_animation(char **cursor, char cmd, struct animation *a)
 		if (a == NULL)
 			return -1;
 
-		readcolour(cursor, &a->fg);
+		if (readcolour(cursor, &a->fg) == -1)
+			return -1;
+
 		break;
 
 	case 'B':
 		if (a == NULL)
 			return -1;
 
-		readcolour(cursor, &a->bg);
+		if (readcolour(cursor, &a->bg) == -1)
+			return -1;
+
 		break;
 
 	case 'I':
@@ -165,42 +177,53 @@ static int handle_animation(char **cursor, char cmd, struct animation *a)
 		if (a == NULL)
 			return -1;
 
-		a->step = readbyte(cursor);
+		if (readbyte(cursor, &a->step) == -1)
+			return -1;
+
 		break;
 
 	case 'D':
 		if (a == NULL)
 			return -1;
 
-		a->speed = readbyte(cursor);
+		if (readbyte(cursor, &a->speed) == -1)
+			return -1;
+
 		break;
 
 	case 'S':
 		if (a == NULL)
 			return -1;
 
-		a->segments = readbyte(cursor);
+		if (readbyte(cursor, &a->segments) == -1)
+			return -1;
 		break;
 
 	case 'L':
 		if (a == NULL)
 			return -1;
 
-		a->fill = readbyte(cursor);
+		if (readbyte(cursor, &a->fill) == -1)
+			return -1;
+
 		break;
 
 	case 'O':
 		if (a == NULL)
 			return -1;
 
-		a->offset = readbyte(cursor);
+		if (readbyte(cursor, &a->offset) == -1)
+			return -1;
+
 		break;
 
 	case 'N':
 		if (a == NULL)
 			return -1;
 
-		a->rotation = readbyte(cursor);
+		if (readbyte(cursor, &a->rotation) == -1)
+			return -1;
+
 		break;
 
 	case 'E':
@@ -237,9 +260,14 @@ static int handle_animation(char **cursor, char cmd, struct animation *a)
 static int handle_ring(struct machine *m, char **cursor, char cmd,
 							struct ring *r)
 {
+	byte value;
+
 	switch (cmd) {
 	case 'N':
-		machine_assign(m, r, readbyte(cursor));
+		if (readbyte(cursor, &value) == -1)
+			return -1;
+
+		machine_assign(m, r, value);
 		break;
 
 	default:
@@ -251,22 +279,34 @@ static int handle_ring(struct machine *m, char **cursor, char cmd,
 
 static int handle_modal(struct machine *m, char **cursor, char cmd)
 {
+	byte value;
+
 	switch (readchar(cursor)) {
 	case 'A':
-		machine_set_animations(m, readbyte(cursor));
+		if (readbyte(cursor, &value) == -1)
+			return -1;
+
+		machine_set_animations(m, value);
 		break;
 
 	case 'R':
-		machine_set_rings(m, readbyte(cursor));
+		if (readbyte(cursor, &value) == -1)
+			return -1;
+
+		machine_set_rings(m, value);
 		break;
 
 	case 'S':
-		m->strobe_speed = readbyte(cursor);
+		if (readbyte(cursor, &m->strobe_speed) == -1)
+			return -1;
+
 		break;
 
 	case 'B':
 	case 'D':
-		m->chase_speed = readbyte(cursor);
+		if (readbyte(cursor, &m->chase_speed) == -1)
+			return -1;
+
 		break;
 
 	case 'F':
@@ -293,6 +333,7 @@ int handle_line(struct machine *m, char *line)
 	struct animation *a = NULL;
 	struct ring *r = NULL;
 	char cmd;
+	byte value;
 
 	while (cursor < end) {
 		cmd = readchar(&cursor);
@@ -301,13 +342,21 @@ int handle_line(struct machine *m, char *line)
 		case 'A':
 			/* begin animation */
 			r = NULL;
-			a = machine_get_animation(m, readbyte(&cursor));
+
+			if (readbyte(&cursor, &value) == -1)
+				return -1;
+
+			a = machine_get_animation(m, value);
 			break;
 
 		case 'R':
 			/* begin ring */
 			a = NULL;
-			r = machine_get_ring(m, readbyte(&cursor));
+
+			if (readbyte(&cursor, &value) == -1)
+				return -1;
+
+			r = machine_get_ring(m, value);
 			break;
 
 		case 'M':
