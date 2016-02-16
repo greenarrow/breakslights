@@ -254,6 +254,13 @@ static int handle_animation(char **cursor, char cmd, struct animation *a)
 		animation_clear(a);
 		break;
 
+	case 'T':
+		if (a == NULL)
+			return -1;
+
+		animation_reset(a);
+		break;
+
 	default:
 		return -1;
 	}
