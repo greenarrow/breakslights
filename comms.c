@@ -247,6 +247,13 @@ static int handle_animation(char **cursor, char cmd, struct animation *a)
 		a->frame++;
 		break;
 
+	case 'C':
+		if (a == NULL)
+			return -1;
+
+		animation_clear(a);
+		break;
+
 	default:
 		return -1;
 	}

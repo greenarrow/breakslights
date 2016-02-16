@@ -35,6 +35,7 @@ struct animation {
 };
 
 struct animation *animation_new();
+void animation_clear(struct animation *a);
 void animation_reset(struct animation *a);
 void animation_step(struct animation *a);
 void animation_validate(struct animation *a);

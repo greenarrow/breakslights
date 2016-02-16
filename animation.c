@@ -16,6 +16,12 @@ struct animation *animation_new()
 	if (a == NULL)
 		return NULL;
 
+	animation_clear(a);
+	return a;
+}
+
+void animation_clear(struct animation *a)
+{
 	a->fg.r = 0;
 	a->fg.g = 0;
 	a->fg.b = 0;
@@ -40,8 +46,6 @@ struct animation *animation_new()
 
 	a->frame = 0;
 	a->backwards = false;
-
-	return a;
 }
 
 void animation_reset(struct animation *a)
