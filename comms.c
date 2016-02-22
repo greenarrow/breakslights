@@ -244,7 +244,7 @@ static int handle_animation(char **cursor, char cmd, struct animation *a)
 		if (a == NULL)
 			return -1;
 
-		a->frame++;
+		a->frame += a->step;
 		break;
 
 	case 'C':
