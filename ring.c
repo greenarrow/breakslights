@@ -47,7 +47,8 @@ static void draw(struct pixel *p, struct ring *r, struct animation *a,
 	unsigned int start, stop;
 	byte i;
 
-	start = a->offset + a->rotation + offset + rotation;
+	start = a->ap[OFFSET].constant + a->ap[ROTATION].constant + offset +
+								rotation;
 
 	while (start >= RING_PIXELS)
 		start -= RING_PIXELS;
@@ -78,23 +79,19 @@ void ring_render(struct pixel *p, struct ring *r, struct animation *a)
 	}
 
 	/* fill is animated or static not both */
-	fill = a->fill;
+	fill = a->ap[FILL].constant;
 
 	switch (a->animate) {
-	case P_FILL:
-		fill = a->frame;
+	case FILL:
+		fill = a->ap[FILL].value;
 		break;
 
-	case P_OFFSET:
-		offset = a->frame;
+	case OFFSET:
+		offset = a->ap[OFFSET].value;
 		break;
 
-	case P_ROTATION:
-		rotation = a->frame;
-		break;
-
-	case P_NONE:
-		fill = a->fill;
+	case ROTATION:
+		rotation = a->ap[ROTATION].value;
 		break;
 
 	default:
@@ -106,6 +103,6 @@ void ring_render(struct pixel *p, struct ring *r, struct animation *a)
 	for (i = 0; i < a->segments; i++) {
 		draw(p, r, a, fill, offset,
 				rotation + i * RING_PIXELS / a->segments,
-				a->mirror && (i % 2));
+				a->ap[a->animate].mirror && (i % 2));
 	}
 }

@@ -22,6 +22,27 @@ struct animation *animation_new()
 
 void animation_clear(struct animation *a)
 {
+	enum propertytype p;
+
+	for (p = 0; p < PROPERTIES; p++) {
+		a->ap[p].constant = 0;
+		a->ap[p].min = 0;
+		a->ap[p].max = 0; /* disabled */
+		a->ap[p].step = 1;
+		a->ap[p].divider = 0; /* disabled */
+
+		a->ap[p].mirror = false;
+		a->ap[p].bounce = false;
+		a->ap[p].reverse = false;
+		a->ap[p].jog = false;
+
+		a->ap[p].value = 0;
+		a->ap[p].bouncing = false;
+	}
+
+	a->segments = 1;
+	a->fill = SOLID;
+
 	a->fg.r = 0;
 	a->fg.g = 0;
 	a->fg.b = 0;
@@ -30,84 +51,150 @@ void animation_clear(struct animation *a)
 	a->bg.g = 0;
 	a->bg.b = 0;
 
-	a->animate = P_NONE;
-
-	a->segments = 1;
-	a->fill = 0;
-	a->offset = 0;
-	a->rotation = 0;
-	a->mirror = false;
-
-	a->step = 1;
-	a->speed = 0;
-
-	a->reverse = false;
-	a->bounce = false;
-
-	a->frame = 0;
-	a->backwards = false;
+	a->animate = NONE;
 }
 
-void animation_reset(struct animation *a)
+static void move(struct property *p, byte size, unsigned int delta)
 {
-	a->frame = 0;
-}
+	int new = p->value;
 
-static void move(struct animation *a, byte size)
-{
-	int new = a->frame;
-
-	if (a->backwards)
-		new -= a->step;
+	if (p->reverse == p->bouncing)
+		new += delta;
 	else
-		new += a->step;
+		new -= delta;
 
 	if (new < 0) {
-		if (a->bounce) {
-			a->backwards = !a->backwards;
-			a->frame = new + a->step * 2;
+		if (p->bounce) {
+			p->bouncing = !p->bouncing;
+			p->value = -new;
 		} else {
-			a->frame = new + size;
+			p->value = new + size;
 		}
 
 		return;
 	}
 
 	if (new > size) {
-		if (a->bounce) {
-			a->backwards = !a->backwards;
-			a->frame = new - a->step * 2;
+		if (p->bounce) {
+			p->bouncing = !p->bouncing;
+			p->value = size - (new - size);
 		} else {
-			a->frame -= size;
+			p->value -= size;
 		}
 
 		return;
 	}
 
 	debug("new %d", new);
-	a->frame = new;
+	p->value = new;
 }
 
-void animation_step(struct animation *a)
+/*
+ * Advance a property by one "frame".
+ */
+void animation_tock(struct animation *a, enum propertytype p,
+						unsigned int delta)
 {
-	switch (a->animate) {
-	case P_FILL:
-		move(a, RING_PIXELS / a->segments);
+	switch (p) {
+	case FILL:
+		move(&a->ap[p], RING_PIXELS, delta);
 		break;
 
-	case P_OFFSET:
-		move(a, RING_PIXELS / a->segments);
+	case OFFSET:
+		move(&a->ap[p], RING_PIXELS / a->segments, delta);
 		break;
 
-	case P_ROTATION:
-		move(a, RING_PIXELS);
+	case ROTATION:
+		move(&a->ap[p], RING_PIXELS, delta);
 		break;
 
-	case P_NONE:
+	case NONE:
 		break;
 
 	default:
 		error("invalid animate");
+	}
+}
+
+void animation_sync(struct animation *a, boolean end)
+{
+	enum propertytype p;
+
+	for (p = 0; p < PROPERTIES; p++) {
+		if (end)
+			/* FIXME: when no max set */
+			a->ap[p].value = a->ap[p].max;
+		else
+			a->ap[p].value = a->ap[p].min;
+	}
+}
+
+/*
+ * Normalised to ensure the time to complete a ring is the same when step
+ * or segments changes. Without this rings would fill twice as fast with two
+ * segments or a step of two.
+ *
+ * FIXME: may need tweaking to what feels sensible after using live.
+ *
+ * A ring always takes RING_PIXELS clocks to complete a fill or rotation.
+ * To perform this normalisation we must advance the value of a property
+ * by (segments * steps) every (segments * steps) clock cycles.
+ *
+ * FIXME: normalise when min/max used to ensure region fills in RING_PIXELS
+ * steps
+ */
+static unsigned int period(struct animation *a, enum propertytype p)
+{
+	switch (p) {
+	case NONE:
+		return 1;
+
+	case FILL:
+		return a->ap[p].step * a->segments;
+
+	case ROTATION:
+	case OFFSET:
+		return a->ap[p].step;
+
+	default:
+		error("bad");
+		return 1;
+	}
+}
+
+/*
+ * Manual advance triggered by a user button or sound event.
+ * When divider = 0 then only jog will advance the property.
+ *
+ * FIXME: do we want to use dividers and a jog counter?
+ */
+void animation_jog(struct animation *a)
+{
+	enum propertytype p;
+
+	for (p = 0; p < PROPERTIES; p++) {
+		if (a->ap[p].jog)
+			animation_tock(a, p, period(a, p));
+	}
+}
+
+/*
+ * Called every [scaled] global clock cycle.
+ */
+void animation_tick(struct animation *a, int clock)
+{
+	enum propertytype p;
+	unsigned int d;
+
+	for (p = 0; p < PROPERTIES; p++) {
+		if (a->ap[p].divider == 0)
+			continue;
+
+		/* FIXME: may be incorrect */
+		d = period(a, p);
+
+		if (clock % (a->ap[p].divider * d) == 0)
+			animation_tock(a, p, d);
 	}
 }
 

@@ -169,10 +169,8 @@ void machine_tick(struct machine *m)
 	}
 
 	/* always step animations even if not visible */
-	for (i = 0; i < m->nanimations; i++) {
-		if (tock(m, m->animations[i]->speed))
-			animation_step(m->animations[i]);
-	}
+	for (i = 0; i < m->nanimations; i++)
+		animation_tick(m->animations[i], m->clock);
 
 	/* FIXME: add more granular redraw */
 	for (i = 0; i < m->nrings; i++) {

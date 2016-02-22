@@ -152,19 +152,19 @@ static int handle_animation(char **cursor, char cmd, struct animation *a)
 
 		switch (readchar(cursor)) {
 		case 'N':
-			a->animate = P_NONE;
+			a->animate = NONE;
 			break;
 
 		case 'F':
-			a->animate = P_FILL;
+			a->animate = FILL;
 			break;
 
 		case 'O':
-			a->animate = P_OFFSET;
+			a->animate = OFFSET;
 			break;
 
 		case 'R':
-			a->animate = P_ROTATION;
+			a->animate = ROTATION;
 			break;
 
 		default:
@@ -177,7 +177,7 @@ static int handle_animation(char **cursor, char cmd, struct animation *a)
 		if (a == NULL)
 			return -1;
 
-		if (readbyte(cursor, &a->step) == -1)
+		if (readbyte(cursor, &a->ap[a->animate].step) == -1)
 			return -1;
 
 		break;
@@ -186,8 +186,11 @@ static int handle_animation(char **cursor, char cmd, struct animation *a)
 		if (a == NULL)
 			return -1;
 
-		if (readbyte(cursor, &a->speed) == -1)
+		byte value;
+		if (readbyte(cursor, &value) == -1)
 			return -1;
+
+		a->ap[a->animate].divider = 256 - value;
 
 		break;
 
@@ -203,7 +206,7 @@ static int handle_animation(char **cursor, char cmd, struct animation *a)
 		if (a == NULL)
 			return -1;
 
-		if (readbyte(cursor, &a->fill) == -1)
+		if (readbyte(cursor, &a->ap[FILL].constant) == -1)
 			return -1;
 
 		break;
@@ -212,7 +215,7 @@ static int handle_animation(char **cursor, char cmd, struct animation *a)
 		if (a == NULL)
 			return -1;
 
-		if (readbyte(cursor, &a->offset) == -1)
+		if (readbyte(cursor, &a->ap[OFFSET].constant) == -1)
 			return -1;
 
 		break;
@@ -221,7 +224,7 @@ static int handle_animation(char **cursor, char cmd, struct animation *a)
 		if (a == NULL)
 			return -1;
 
-		if (readbyte(cursor, &a->rotation) == -1)
+		if (readbyte(cursor, &a->ap[ROTATION].constant) == -1)
 			return -1;
 
 		break;
@@ -230,21 +233,21 @@ static int handle_animation(char **cursor, char cmd, struct animation *a)
 		if (a == NULL)
 			return -1;
 
-		a->bounce = readbool(cursor);
+		a->ap[a->animate].bounce = readbool(cursor);
 		break;
 
 	case 'Z':
 		if (a == NULL)
 			return -1;
 
-		a->mirror = readbool(cursor);
+		a->ap[a->animate].mirror = readbool(cursor);
 		break;
 
 	case 'V':
 		if (a == NULL)
 			return -1;
 
-		a->frame += a->step;
+		animation_jog(a);
 		break;
 
 	case 'C':
@@ -258,7 +261,7 @@ static int handle_animation(char **cursor, char cmd, struct animation *a)
 		if (a == NULL)
 			return -1;
 
-		animation_reset(a);
+		animation_sync(a, false);
 		break;
 
 	default:

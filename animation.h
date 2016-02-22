@@ -36,6 +36,9 @@ struct animation {
 
 	struct colour fg;
 	struct colour bg;
+
+	/* FIXME: placeholder */
+	enum propertytype animate;
 };
 
 struct animation *animation_new();
