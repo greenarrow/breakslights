@@ -11,8 +11,8 @@ A[nnn] R[0|1]           reverse
 A[nnn] E[0|1]           bounce
 
 A[nnn] C                clear properties
-A[nnn] Z                reset to start
-A[nnn] F                advance frame
+A[nnn] T                reset to start
+A[nnn] V                advance frame
 
 MR[000-255]             set # rings
 MA[000-255]             set # animations
