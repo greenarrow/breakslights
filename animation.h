@@ -3,41 +3,46 @@
 
 #include "common.h"
 
-enum property {
-	P_NONE,
-	P_FILL,
-	P_OFFSET,
-	P_ROTATION,
+enum filltype {
+	SOLID,
+	LINEAR
+};
+
+struct property {
+	/* user values */
+	byte constant;
+	byte min;
+	byte max;
+	byte step;
+	byte divider;
+
+	boolean mirror;
+	boolean bounce;
+	boolean reverse;
+	boolean jog;
+
+	/* runtime state */
+	byte value;
+	boolean bouncing;
 };
 
 struct animation {
+	/* animate-able properties */
+	struct property ap[PROPERTIES];
+
+	/* fixed properties */
+	byte segments;
+	enum filltype fill;
+
 	struct colour fg;
 	struct colour bg;
-
-	enum property animate;
-
-	/* static pattern properties */
-	byte segments;
-	byte fill;
-	byte offset;
-	byte rotation;
-	boolean mirror;
-
-	/* animation properties */
-	byte step;
-	byte speed;
-	boolean reverse;
-	boolean bounce;
-
-	/* current frame */
-	byte frame;
-	boolean backwards;
 };
 
 struct animation *animation_new();
 void animation_clear(struct animation *a);
-void animation_reset(struct animation *a);
-void animation_step(struct animation *a);
+void animation_sync(struct animation *a, boolean end);
+void animation_jog(struct animation *a);
+void animation_tick(struct animation *a, int clock);
 void animation_validate(struct animation *a);
 
 #endif

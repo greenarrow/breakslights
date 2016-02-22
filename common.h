@@ -53,4 +53,11 @@ struct colour {
 	byte b;
 };
 
+enum propertytype {
+	FILL,
+	ROTATION,
+	OFFSET,
+	PROPERTIES
+};
+
 #endif
