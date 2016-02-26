@@ -90,15 +90,6 @@ static boolean readbool(char **cursor)
 	return false;
 }
 
-static char readbyte(char **cursor, byte *result)
-{
-	if (strtobyte(*cursor, 3, result, 10) == -1)
-		return -1;
-
-	*cursor += 3;
-	return 0;
-}
-
 static char readhex(char **cursor, byte *result)
 {
 	if (strtobyte(*cursor, 2, result, 16) == -1)
@@ -125,146 +116,149 @@ static char readcolour(char **cursor, struct colour *result)
 	return 0;
 }
 
-static int handle_animation(char **cursor, char cmd, struct animation *a)
+static byte getproperty(const char p)
 {
-	switch (cmd) {
+	switch (p) {
 	case 'F':
-		if (a == NULL)
-			return -1;
-
-		if (readcolour(cursor, &a->fg) == -1)
-			return -1;
-
-		break;
-
-	case 'B':
-		if (a == NULL)
-			return -1;
-
-		if (readcolour(cursor, &a->bg) == -1)
-			return -1;
-
-		break;
-
-	case 'I':
-		if (a == NULL)
-			return -1;
-
-		switch (readchar(cursor)) {
-		case 'N':
-			a->animate = NONE;
-			break;
-
-		case 'F':
-			a->animate = FILL;
-			break;
-
-		case 'O':
-			a->animate = OFFSET;
-			break;
-
-		case 'R':
-			a->animate = ROTATION;
-			break;
-
-		default:
-			return -1;
-		}
-
-		break;
-
-	case 'P':
-		if (a == NULL)
-			return -1;
-
-		if (readbyte(cursor, &a->ap[a->animate].step) == -1)
-			return -1;
-
-		break;
-
-	case 'D':
-		if (a == NULL)
-			return -1;
-
-		byte value;
-		if (readbyte(cursor, &value) == -1)
-			return -1;
-
-		a->ap[a->animate].divider = 256 - value;
-
-		break;
-
-	case 'S':
-		if (a == NULL)
-			return -1;
-
-		if (readbyte(cursor, &a->segments) == -1)
-			return -1;
-		break;
-
-	case 'L':
-		if (a == NULL)
-			return -1;
-
-		if (readbyte(cursor, &a->ap[FILL].constant) == -1)
-			return -1;
-
-		break;
-
+		return FILL;
+	case 'R':
+		return ROTATION;
 	case 'O':
-		if (a == NULL)
-			return -1;
+		return OFFSET;
+	default:
+		return NONE;
+	}
+}
 
-		if (readbyte(cursor, &a->ap[OFFSET].constant) == -1)
+static int handle_property(char **cursor, char p, struct animation *a)
+{
+	byte i = getproperty(p);
+	char v;
+	byte value;
+
+	if (i == NONE) {
+		debug("property %c does not exist", p);
+		return -1;
+	}
+
+	v = readchar(cursor);
+
+	switch (v) {
+	case 'C':
+		if (readhex(cursor, &a->ap[i].constant) == -1)
 			return -1;
 
 		break;
 
 	case 'N':
-		if (a == NULL)
-			return -1;
-
-		if (readbyte(cursor, &a->ap[ROTATION].constant) == -1)
+		if (readhex(cursor, &a->ap[i].min) == -1)
 			return -1;
 
 		break;
 
-	case 'E':
-		if (a == NULL)
+	case 'X':
+		if (readhex(cursor, &a->ap[i].max) == -1)
 			return -1;
 
-		a->ap[a->animate].bounce = readbool(cursor);
 		break;
 
-	case 'Z':
-		if (a == NULL)
+	case 'S':
+		if (readhex(cursor, &a->ap[i].step) == -1)
 			return -1;
 
-		a->ap[a->animate].mirror = readbool(cursor);
 		break;
 
-	case 'V':
-		if (a == NULL)
+	case 'D':
+		if (readhex(cursor, &value) == -1)
 			return -1;
 
-		animation_jog(a);
+		/* FIXME: speed to divider */
+		a->ap[i].divider = 256 - value;
+
+		/* FIXME: temporary */
+		a->animate = i;
+
 		break;
 
-	case 'C':
-		if (a == NULL)
-			return -1;
-
-		animation_clear(a);
+	case 'J':
+		a->ap[i].jog = readbool(cursor);
 		break;
 
-	case 'T':
-		if (a == NULL)
-			return -1;
+	case 'M':
+		a->ap[i].mirror = readbool(cursor);
+		break;
 
-		animation_sync(a, false);
+	case 'B':
+		a->ap[i].bounce = readbool(cursor);
+		break;
+
+	case 'R':
+		a->ap[i].reverse = readbool(cursor);
 		break;
 
 	default:
+		debug("value %c does not exist", v);
+		return -1;
+	}
+
+	return 0;
+}
+
+static int handle_animation(char **cursor, char cmd, struct animation *a)
+{
+	switch (cmd) {
+	case 'E':
+		animation_clear(a);
+		break;
+
+	case 'J':
+		/* FIXME: reverse */
+		if (readbool(cursor))
+			animation_jog(a);
+		else
+			animation_jog(a);
+		break;
+
+	case 'Y':
+		animation_sync(a, !readbool(cursor));
+		break;
+
+	case 'C':
+		switch (readchar(cursor)) {
+		case 'F':
+
+			if (readcolour(cursor, &a->fg) == -1)
+				return -1;
+
+			break;
+
+		case 'B':
+			if (readcolour(cursor, &a->bg) == -1)
+				return -1;
+
+			break;
+		}
+
+		break;
+
+	case 'S':
+		if (readhex(cursor, &a->segments) == -1)
+			return -1;
+		break;
+
+	case 'F':
+	case 'R':
+	case 'O':
+	case 'T':
+		if (handle_property(cursor, cmd, a) == -1) {
+			debug("bad property %c", cmd);
+			return -1;
+		}
+
+		break;
+
+	default:
+		debug("invalid command %c", cmd);
 		return -1;
 	}
 
@@ -281,7 +275,7 @@ static int handle_ring(struct machine *m, char **cursor, char cmd,
 
 	switch (cmd) {
 	case 'N':
-		if (readbyte(cursor, &value) == -1)
+		if (readhex(cursor, &value) == -1)
 			return -1;
 
 		machine_assign(m, r, value);
@@ -300,28 +294,27 @@ static int handle_modal(struct machine *m, char **cursor, char cmd)
 
 	switch (readchar(cursor)) {
 	case 'A':
-		if (readbyte(cursor, &value) == -1)
+		if (readhex(cursor, &value) == -1)
 			return -1;
 
 		machine_set_animations(m, value);
 		break;
 
 	case 'R':
-		if (readbyte(cursor, &value) == -1)
+		if (readhex(cursor, &value) == -1)
 			return -1;
 
 		machine_set_rings(m, value);
 		break;
 
 	case 'S':
-		if (readbyte(cursor, &m->strobe_speed) == -1)
+		if (readhex(cursor, &m->strobe_speed) == -1)
 			return -1;
 
 		break;
 
-	case 'B':
-	case 'D':
-		if (readbyte(cursor, &m->chase_speed) == -1)
+	case 'C':
+		if (readhex(cursor, &m->chase_speed) == -1)
 			return -1;
 
 		break;
@@ -364,7 +357,7 @@ int handle_line(struct machine *m, char *line)
 			/* begin animation */
 			r = NULL;
 
-			if (readbyte(&cursor, &value) == -1)
+			if (readhex(&cursor, &value) == -1)
 				return -1;
 
 			a = machine_get_animation(m, value);
@@ -374,7 +367,7 @@ int handle_line(struct machine *m, char *line)
 			/* begin ring */
 			a = NULL;
 
-			if (readbyte(&cursor, &value) == -1)
+			if (readhex(&cursor, &value) == -1)
 				return -1;
 
 			r = machine_get_ring(m, value);
@@ -385,8 +378,10 @@ int handle_line(struct machine *m, char *line)
 			a = NULL;
 			r = NULL;
 
-			if (handle_modal(m, &cursor, cmd) == -1)
+			if (handle_modal(m, &cursor, cmd) == -1) {
+				debug("modal read error");
 				goto error;
+			}
 
 			break;
 
@@ -401,13 +396,17 @@ int handle_line(struct machine *m, char *line)
 				goto error;
 
 			if (a) {
-				if (handle_animation(&cursor, cmd, a) == -1)
+				if (handle_animation(&cursor, cmd, a) == -1) {
+					debug("animation read error");
 					goto error;
+				}
 			}
 
 			if (r) {
-				if (handle_ring(m, &cursor, cmd, r) == -1)
+				if (handle_ring(m, &cursor, cmd, r) == -1) {
+					debug("ring read error");
 					goto error;
+				}
 			}
 
 			break;
@@ -421,6 +420,7 @@ int handle_line(struct machine *m, char *line)
 			return 0;
 
 		default:
+			debug("invalid command '%c'", cmd);
 			goto error;
 		}
 	}

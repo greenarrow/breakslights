@@ -6,6 +6,7 @@ Divider values of zero signify a paused state.
 MA[xx]                              set # animations
 MR[xx]                              set # rings
 MS[xx]                              set strobe divider
+MC[xx]                              set chase divider
 MT                                  clock advance
 MI                                  output statistics
 
