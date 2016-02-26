@@ -75,8 +75,6 @@ void loop()
 	debug("loop");
 
 	for (;;) {
-		debug("waiting");
-
 		if (missed > 0) {
 			m.missed += missed;
 			missed = 0;
