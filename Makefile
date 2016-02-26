@@ -15,7 +15,7 @@ REGRESSION_TESTS = tests/fills.lc tests/strobe.lc tests/chase.lc \
 
 .PHONY:		all test clean
 
-%.reg:		%
+%.reg:		% breakslights
 	./breakslights < $< | diff -u -- $<.stdout -
 	$(VALGRIND) -- ./breakslights < $< > /dev/null
 
