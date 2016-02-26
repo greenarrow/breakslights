@@ -1,28 +1,43 @@
 [version 0.1]
 
-A[nnn] [F|B][rrggbb]    colour
-A[nnn] I[N|F|O|R]       animation
-A[nnn] S[000-255]       segments
-A[nnn] L[000-255]       fill
-A[nnn] O[000-255]       offset
-A[nnn] N[000-255]       rotation
-A[nnn] Z[0|1]           mirror
-A[nnn] P[000-255]       step size
-A[nnn] D[000-255]       animation speed
-A[nnn] R[0|1]           reverse
-A[nnn] E[0|1]           bounce
+Divider values of zero signify a paused state.
 
-A[nnn] C                clear properties
-A[nnn] T                reset to start
-A[nnn] V                advance frame
+# modal
+MA[xx]                              set # animations
+MR[xx]                              set # rings
+MS[xx]                              set strobe divider
+MT                                  clock advance
+MI                                  output statistics
 
-MR[000-255]             set # rings
-MA[000-255]             set # animations
-MB[0|1]                 blackout
-MD[000-255]             chase speed
-MS[000-255]             strobe speed
-MF                      advance chase
-ME                      system restart
-MT                      manual tick
+# ring
+R[xx] A[xx]                         assign animation
 
-R[nnn] N[nnn]           assign animation
+# animation
+A[xx] E                             reset
+A[xx] J[0|1]                        step (back / forward)
+A[xx] Y[0|1]                        sync (start / end)
+A[xx] CF[rrggbb]                    set forground colour
+A[xx] CB[rrggbb]                    set background colour
+A[xx] S[xx]                         set segments
+A[xx] [F|R|O|T][C|N|X|S|D][xx]      set property value
+A[xx] [F|R|O|T][J|M|B|R][0|1]       set property value
+
+# fill types
+S = SOLID
+
+# properties
+F = FILL
+R = ROTATION
+O = OFFSET
+T = STROBE
+
+# values
+C = CONSTANT
+N = MIN
+X = MAX
+S = STEP
+D = DIVIDER
+J = JOG
+M = MIRROR
+B = BOUNCE
+R = REVERSE
