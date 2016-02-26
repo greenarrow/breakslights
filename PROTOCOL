@@ -14,23 +14,23 @@ MI                                  output statistics
 R[xx] A[xx]                         assign animation
 
 # animation
-A[xx] E                             reset
+A[xx] L                             reset
 A[xx] J[0|1]                        step (back / forward)
 A[xx] Y[0|1]                        sync (start / end)
 A[xx] CF[rrggbb]                    set forground colour
 A[xx] CB[rrggbb]                    set background colour
 A[xx] S[xx]                         set segments
-A[xx] [F|R|O|T][C|N|X|S|D][xx]      set property value
-A[xx] [F|R|O|T][J|M|B|R][0|1]       set property value
+A[xx] [F|O|T|E][C|N|X|S|D][xx]      set property value
+A[xx] [F|O|T|E][J|I|B|V][0|1]       set property value
 
 # fill types
 S = SOLID
 
 # properties
 F = FILL
-R = ROTATION
-O = OFFSET
-T = STROBE
+O = ROTATION
+T = OFFSET
+E = STROBE
 
 # values
 C = CONSTANT
@@ -39,6 +39,14 @@ X = MAX
 S = STEP
 D = DIVIDER
 J = JOG
-M = MIRROR
+I = MIRROR
 B = BOUNCE
-R = REVERSE
+V = REVERSE
+
+[add later]
+ML[xx]                              master fade
+MC[xx]                              chase speed
+MH                                  advance chase
+L = LIGHTNESS
+H = HUE
+M = MODULATION

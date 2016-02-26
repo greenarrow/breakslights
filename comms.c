@@ -121,9 +121,9 @@ static byte getproperty(const char p)
 	switch (p) {
 	case 'F':
 		return FILL;
-	case 'R':
-		return ROTATION;
 	case 'O':
+		return ROTATION;
+	case 'T':
 		return OFFSET;
 	default:
 		return NONE;
@@ -184,7 +184,7 @@ static int handle_property(char **cursor, char p, struct animation *a)
 		a->ap[i].jog = readbool(cursor);
 		break;
 
-	case 'M':
+	case 'I':
 		a->ap[i].mirror = readbool(cursor);
 		break;
 
@@ -192,7 +192,7 @@ static int handle_property(char **cursor, char p, struct animation *a)
 		a->ap[i].bounce = readbool(cursor);
 		break;
 
-	case 'R':
+	case 'V':
 		a->ap[i].reverse = readbool(cursor);
 		break;
 
@@ -207,7 +207,7 @@ static int handle_property(char **cursor, char p, struct animation *a)
 static int handle_animation(char **cursor, char cmd, struct animation *a)
 {
 	switch (cmd) {
-	case 'E':
+	case 'L':
 		animation_clear(a);
 		break;
 
@@ -247,9 +247,9 @@ static int handle_animation(char **cursor, char cmd, struct animation *a)
 		break;
 
 	case 'F':
-	case 'R':
 	case 'O':
 	case 'T':
+	case 'E':
 		if (handle_property(cursor, cmd, a) == -1) {
 			debug("bad property %c", cmd);
 			return -1;
@@ -323,7 +323,6 @@ static int handle_modal(struct machine *m, char **cursor, char cmd)
 		output("D%.3u\n", m->missed);
 		break;
 
-	case 'F':
 	case 'T':
 		/* manual tick */
 		debug("manual tick");
