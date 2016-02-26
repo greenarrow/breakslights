@@ -1,3 +1,5 @@
+[version 0.1]
+
 A[nnn] [F|B][rrggbb]    colour
 A[nnn] I[N|F|O|R]       animation
 A[nnn] S[000-255]       segments
