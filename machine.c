@@ -104,6 +104,7 @@ void machine_init(struct machine *m)
 
 	m->chase_speed = 0;
 	m->strobe_speed = 0;
+	m->master_fade = 255;
 
 	m->missed = 0;
 

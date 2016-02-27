@@ -23,6 +23,8 @@ struct machine {
 	byte chase_speed;
 	byte strobe_speed;
 
+	byte master_fade;
+
 	/* statistics */
 	byte missed;
 };
