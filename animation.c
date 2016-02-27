@@ -53,14 +53,13 @@ void animation_clear(struct animation *a)
 	a->bg.b = 0;
 }
 
-static void setpixel(struct pixel *p, unsigned int bufp, byte px,
-							struct colour c)
+/* wrap around ring */
+static byte wrap(byte value)
 {
-	/* wrap around ring */
-	while (px >= RING_PIXELS)
-		px -= RING_PIXELS;
+	while (value >= RING_PIXELS)
+		value -= RING_PIXELS;
 
-	pixel_set(p, (bufp * RING_PIXELS) + px, c);
+	return value;
 }
 
 static void clear(struct pixel *p, unsigned int bufp, struct colour c)
@@ -68,7 +67,7 @@ static void clear(struct pixel *p, unsigned int bufp, struct colour c)
 	byte i;
 
 	for (i = 0; i < RING_PIXELS; i++)
-		setpixel(p, bufp, i, c);
+		pixel_set(p, (bufp * RING_PIXELS) + wrap(i), c);
 }
 
 static void draw(struct pixel *p, unsigned int bufp, struct animation *a,
@@ -80,9 +79,7 @@ static void draw(struct pixel *p, unsigned int bufp, struct animation *a,
 	byte i;
 
 	start = result[OFFSET] + result[ROTATION] + segoff;
-
-	while (start >= RING_PIXELS)
-		start -= RING_PIXELS;
+	start = wrap(start);
 
 	if (mirror)
 		start = start + RING_PIXELS / a->segments - result[FILL];
@@ -93,7 +90,7 @@ static void draw(struct pixel *p, unsigned int bufp, struct animation *a,
 		stop -= RING_PIXELS / a->segments;
 
 	for (i = start; i < stop; i++)
-		setpixel(p, bufp, i, a->fg);
+		pixel_set(p, (bufp * RING_PIXELS) + wrap(i), a->fg);
 }
 
 void animation_render(struct pixel *p, unsigned int bufp, struct animation *a)
