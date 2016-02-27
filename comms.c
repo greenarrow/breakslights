@@ -299,6 +299,11 @@ static int handle_modal(struct machine *m, char **cursor, char cmd)
 		machine_set_rings(m, value);
 		break;
 
+	case 'D':
+		if (readhex(cursor, &m->divider) == -1)
+			return -1;
+		break;
+
 	case 'S':
 		if (readhex(cursor, &m->strobe_divider) == -1)
 			return -1;
