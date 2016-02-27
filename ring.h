@@ -13,6 +13,6 @@ struct ring {
 };
 
 struct ring *ring_new(byte offset);
-void ring_render(struct pixel *p, struct ring *r, struct animation *a);
+void ring_render(struct pixel *p, unsigned int bufp, struct animation *a);
 
 #endif
