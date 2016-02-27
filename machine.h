@@ -7,6 +7,7 @@
 struct machine {
 	/* system state */
 	unsigned int clock;
+	byte subticks;
 
 	struct pixel pixels;
 

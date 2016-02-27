@@ -92,6 +92,7 @@ struct animation *machine_get_animation(struct machine *m, byte i)
 void machine_init(struct machine *m)
 {
 	m->clock = 0;
+	m->subticks = 0;
 
 	m->rings = NULL;
 	m->nrings = 0;
@@ -135,7 +136,7 @@ static boolean tock(struct machine *m, byte divider)
 	if (divider == 0)
 		return false;
 
-	if ((m->clock % (m->divider * divider)) == 0)
+	if ((m->clock % divider) == 0)
 		return true;
 
 	return false;
@@ -155,6 +156,15 @@ void machine_tick(struct machine *m)
 {
 	int i;
 
+	if (m->divider == 0)
+		return;
+
+	m->subticks++;
+
+	if (m->subticks < m->divider)
+		return;
+
+	m->subticks = 0;
 	m->clock++;
 
 	if (!m->strobe_on && m->strobe_divider == 0)
