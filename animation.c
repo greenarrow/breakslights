@@ -79,12 +79,15 @@ static void draw(struct pixel *p, unsigned int bufp, struct animation *a,
 	byte i;
 
 	start = result[OFFSET] + result[ROTATION] + segoff;
+
+	if (mirror) {
+		start += (RING_PIXELS / a->segments) -
+					(result[FILL] / a->segments);
+	}
+
 	start = wrap(start);
 
-	if (mirror)
-		start = start + RING_PIXELS / a->segments - result[FILL];
-
-	stop = start + result[FILL];
+	stop = start + (result[FILL] / a->segments);
 
 	if (stop - start > RING_PIXELS / a->segments)
 		stop -= RING_PIXELS / a->segments;
