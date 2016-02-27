@@ -134,7 +134,6 @@ static int handle_property(char **cursor, char p, struct animation *a)
 {
 	byte i = getproperty(p);
 	char v;
-	byte value;
 
 	if (i == NONE) {
 		debug("property %c does not exist", p);
@@ -169,11 +168,8 @@ static int handle_property(char **cursor, char p, struct animation *a)
 		break;
 
 	case 'D':
-		if (readhex(cursor, &value) == -1)
+		if (readhex(cursor, &a->ap[i].divider) == -1)
 			return -1;
-
-		/* FIXME: speed to divider */
-		a->ap[i].divider = 256 - value;
 		break;
 
 	case 'J':
@@ -304,15 +300,13 @@ static int handle_modal(struct machine *m, char **cursor, char cmd)
 		break;
 
 	case 'S':
-		if (readhex(cursor, &m->strobe_speed) == -1)
+		if (readhex(cursor, &m->strobe_divider) == -1)
 			return -1;
-
 		break;
 
 	case 'C':
-		if (readhex(cursor, &m->chase_speed) == -1)
+		if (readhex(cursor, &m->chase_divider) == -1)
 			return -1;
-
 		break;
 
 	case 'I':

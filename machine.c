@@ -99,11 +99,13 @@ void machine_init(struct machine *m)
 	m->animations = NULL;
 	m->nanimations = 0;
 
+	m->divider = 1;
+
 	m->chase_index = 0;
 	m->strobe_on = true;
 
-	m->chase_speed = 0;
-	m->strobe_speed = 0;
+	m->chase_divider = 0;
+	m->strobe_divider = 0;
 	m->master_fade = 255;
 
 	m->missed = 0;
@@ -128,12 +130,12 @@ void machine_assign(struct machine *m, struct ring *r, byte n)
 	debug("assign animation %d", n);
 }
 
-static boolean tock(struct machine *m, byte speed)
+static boolean tock(struct machine *m, byte divider)
 {
-	if (speed == 0)
+	if (divider == 0)
 		return false;
 
-	if ((m->clock % (256 - speed)) == 0)
+	if ((m->clock % (m->divider * divider)) == 0)
 		return true;
 
 	return false;
@@ -155,14 +157,14 @@ void machine_tick(struct machine *m)
 
 	m->clock++;
 
-	if (!m->strobe_on && m->strobe_speed == 0)
+	if (!m->strobe_on && m->strobe_divider == 0)
 		m->strobe_on = true;
 
-	if (tock(m, m->strobe_speed))
+	if (tock(m, m->strobe_divider))
 		m->strobe_on = !m->strobe_on;
 
 	/* FIXME: implement reflection */
-	if (tock(m, m->chase_speed)) {
+	if (tock(m, m->chase_divider)) {
 		m->chase_index++;
 
 		if (m->chase_index >= m->nrings)

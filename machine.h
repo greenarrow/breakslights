@@ -17,13 +17,16 @@ struct machine {
 	byte nanimations;
 
 	/* modal animation state */
-	byte chase_index;
-	boolean strobe_on;
+	byte divider;
 
-	byte chase_speed;
-	byte strobe_speed;
+	byte chase_divider;
+	byte strobe_divider;
 
 	byte master_fade;
+
+	/* modal running state */
+	byte chase_index;
+	boolean strobe_on;
 
 	/* statistics */
 	byte missed;
