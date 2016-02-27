@@ -31,15 +31,12 @@ struct animation {
 	struct property ap[PROPERTIES];
 
 	/* fixed properties */
-	byte segments;
-	boolean mirror;
-	enum filltype fill;
-
 	struct colour fg;
 	struct colour bg;
 
-	/* FIXME: placeholder */
-	enum propertytype animate;
+	byte segments;
+	boolean mirror;
+	enum filltype fill;
 };
 
 struct animation *animation_new();

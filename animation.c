@@ -51,8 +51,6 @@ void animation_clear(struct animation *a)
 	a->bg.r = 0;
 	a->bg.g = 0;
 	a->bg.b = 0;
-
-	a->animate = NONE;
 }
 
 static void setpixel(struct pixel *p, unsigned int bufp, byte px,
