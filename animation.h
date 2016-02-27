@@ -17,7 +17,6 @@ struct property {
 	byte step;
 	byte divider;
 
-	boolean mirror;
 	boolean bounce;
 	boolean reverse;
 	boolean jog;
@@ -33,6 +32,7 @@ struct animation {
 
 	/* fixed properties */
 	byte segments;
+	boolean mirror;
 	enum filltype fill;
 
 	struct colour fg;

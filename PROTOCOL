@@ -20,6 +20,7 @@ A[xx] Y[0|1]                        sync (start / end)
 A[xx] CF[rrggbb]                    set forground colour
 A[xx] CB[rrggbb]                    set background colour
 A[xx] S[xx]                         set segments
+A[xx] I[0|1]                        set mirror segments
 A[xx] [F|O|T|E][C|N|X|S|D][xx]      set property value
 A[xx] [F|O|T|E][J|I|B|V][0|1]       set property value
 
@@ -39,7 +40,6 @@ X = MAX
 S = STEP
 D = DIVIDER
 J = JOG
-I = MIRROR
 B = BOUNCE
 V = REVERSE
 

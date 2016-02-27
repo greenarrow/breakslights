@@ -174,18 +174,10 @@ static int handle_property(char **cursor, char p, struct animation *a)
 
 		/* FIXME: speed to divider */
 		a->ap[i].divider = 256 - value;
-
-		/* FIXME: temporary */
-		a->animate = i;
-
 		break;
 
 	case 'J':
 		a->ap[i].jog = readbool(cursor);
-		break;
-
-	case 'I':
-		a->ap[i].mirror = readbool(cursor);
 		break;
 
 	case 'B':
@@ -244,6 +236,10 @@ static int handle_animation(char **cursor, char cmd, struct animation *a)
 	case 'S':
 		if (readhex(cursor, &a->segments) == -1)
 			return -1;
+		break;
+
+	case 'I':
+		a->mirror = readbool(cursor);
 		break;
 
 	case 'F':

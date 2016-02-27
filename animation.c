@@ -32,7 +32,6 @@ void animation_clear(struct animation *a)
 		a->ap[p].step = 1;
 		a->ap[p].divider = 0; /* disabled */
 
-		a->ap[p].mirror = false;
 		a->ap[p].bounce = false;
 		a->ap[p].reverse = false;
 		a->ap[p].jog = false;
@@ -42,6 +41,7 @@ void animation_clear(struct animation *a)
 	}
 
 	a->segments = 1;
+	a->mirror = false;
 	a->fill = SOLID;
 
 	a->fg.r = 0;
@@ -130,7 +130,7 @@ void animation_render(struct pixel *p, unsigned int bufp, struct animation *a)
 
 	for (i = 0; i < a->segments; i++) {
 		draw(p, bufp, a, result, i * RING_PIXELS / a->segments,
-				a->ap[a->animate].mirror && (i % 2));
+						a->mirror && (i % 2));
 	}
 }
 
