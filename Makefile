@@ -11,7 +11,7 @@ VALGRIND = valgrind -q --error-exitcode=1 --leak-check=yes \
 
 REGRESSION_TESTS = tests/fills.lc tests/strobe.lc tests/chase.lc \
 	tests/mirror.lc tests/chopflash.lc tests/redwobble.lc \
-	tests/ripple.lc tests/shadows.lc
+	tests/ripple.lc tests/shadows.lc tests/multiprop.lc
 
 .PHONY:		all test clean
 
