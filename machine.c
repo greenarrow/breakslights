@@ -175,7 +175,7 @@ void machine_tick(struct machine *m)
 	/* FIXME: add more granular redraw */
 	for (i = 0; i < m->nrings; i++) {
 		/* FIXME: chase mapping */
-		ring_render(&m->pixels, m->rings[i]->offset,
+		animation_render(&m->pixels, m->rings[i]->offset,
 			m->strobe_on ? machine_get_animation(m,
 			chased(m, i)->animation) : NULL);
 	}

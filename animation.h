@@ -2,6 +2,7 @@
 #define ANIMATION_H
 
 #include "common.h"
+#include "pixel.h"
 
 enum filltype {
 	SOLID,
@@ -43,6 +44,7 @@ struct animation {
 
 struct animation *animation_new();
 void animation_clear(struct animation *a);
+void animation_render(struct pixel *p, unsigned int bufp, struct animation *a);
 void animation_sync(struct animation *a, boolean end);
 void animation_jog(struct animation *a);
 void animation_tick(struct animation *a, int clock);

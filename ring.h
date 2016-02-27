@@ -5,14 +5,11 @@
 #include "config.h"
 #include "animation.h"
 
-#include "pixel.h"
-
 struct ring {
 	byte offset;
 	byte animation;
 };
 
 struct ring *ring_new(byte offset);
-void ring_render(struct pixel *p, unsigned int bufp, struct animation *a);
 
 #endif
