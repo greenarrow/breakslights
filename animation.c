@@ -74,23 +74,22 @@ static void clear(struct pixel *p, unsigned int bufp, struct colour c)
 }
 
 static void draw(struct pixel *p, unsigned int bufp, struct animation *a,
-				unsigned int fill, unsigned int offset,
-				unsigned int rotation, boolean mirror)
+				byte result[PROPERTIES], unsigned int segoff,
+				boolean mirror)
 {
 	/* FIXME: add support for segment mirroring */
 	unsigned int start, stop;
 	byte i;
 
-	start = a->ap[OFFSET].constant + a->ap[ROTATION].constant + offset +
-								rotation;
+	start = result[OFFSET] + result[ROTATION] + segoff;
 
 	while (start >= RING_PIXELS)
 		start -= RING_PIXELS;
 
 	if (mirror)
-		start = start + RING_PIXELS / a->segments - fill;
+		start = start + RING_PIXELS / a->segments - result[FILL];
 
-	stop = start + fill;
+	stop = start + result[FILL];
 
 	if (stop - start > RING_PIXELS / a->segments)
 		stop -= RING_PIXELS / a->segments;
@@ -102,10 +101,9 @@ static void draw(struct pixel *p, unsigned int bufp, struct animation *a,
 void animation_render(struct pixel *p, unsigned int bufp, struct animation *a)
 {
 	struct colour black = {0, 0, 0};
-	unsigned int fill = 0;
-	unsigned int offset = 0;
-	unsigned int rotation = 0;
 	byte i;
+	enum propertytype pr;
+	byte result[PROPERTIES];
 
 	if (a == NULL) {
 		clear(p, bufp, black);
@@ -113,30 +111,25 @@ void animation_render(struct pixel *p, unsigned int bufp, struct animation *a)
 	}
 
 	/* fill is animated or static not both */
-	fill = a->ap[FILL].constant;
+	if (a->ap[FILL].divider == 0)
+		result[FILL] = a->ap[FILL].constant;
+	else
+		result[FILL] = a->ap[FILL].value;
 
-	switch (a->animate) {
-	case FILL:
-		fill = a->ap[FILL].value;
-		break;
+	for (pr = NONE; pr < PROPERTIES; pr++) {
+		if (pr == FILL)
+			continue;
 
-	case OFFSET:
-		offset = a->ap[OFFSET].value;
-		break;
+		result[pr] = a->ap[pr].constant;
 
-	case ROTATION:
-		rotation = a->ap[ROTATION].value;
-		break;
-
-	default:
-		error("invalid animate %d", a->animate);
+		if (a->ap[pr].divider > 0)
+			result[pr] += a->ap[pr].value;
 	}
 
 	clear(p, bufp, a->bg);
 
 	for (i = 0; i < a->segments; i++) {
-		draw(p, bufp, a, fill, offset,
-				rotation + i * RING_PIXELS / a->segments,
+		draw(p, bufp, a, result, i * RING_PIXELS / a->segments,
 				a->ap[a->animate].mirror && (i % 2));
 	}
 }
