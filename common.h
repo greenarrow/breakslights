@@ -58,6 +58,10 @@ enum propertytype {
 	FILL,
 	ROTATION,
 	OFFSET,
+	HUE,
+	LIGHTNESS,
+	HUE2,
+	LIGHTNESS2,
 	PROPERTIES
 };
 

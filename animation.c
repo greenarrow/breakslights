@@ -10,6 +10,8 @@
 #include "animation.h"
 #include "pixel.h"
 
+#define HUE_REGION 40
+
 struct animation *animation_new()
 {
 	struct animation *a = malloc(sizeof(struct animation));
@@ -45,14 +47,106 @@ void animation_clear(struct animation *a)
 	a->segments = 1;
 	a->mirror = false;
 	a->fill = SOLID;
+}
 
-	a->fg.r = 0;
-	a->fg.g = 0;
-	a->fg.b = 0;
+static inline byte incline(unsigned int region, unsigned int value)
+{
+	return (value - (region * HUE_REGION)) * 255 / HUE_REGION;
+}
 
-	a->bg.r = 0;
-	a->bg.g = 0;
-	a->bg.b = 0;
+static inline byte decline(unsigned int region, unsigned int value)
+{
+	return 255 - ((value - (region * HUE_REGION)) * 255 / HUE_REGION);
+}
+
+/*
+ * Pseudo HSL to RGB transform assuming always Smax.
+ *
+ * Hue is split into 6 regions where each of RGB will be one of
+ * 0, max, incline or decline (both linear).
+ *
+ * We then apply a crude lightness transform by darkening for L < 127
+ * or washing out for L > 127.
+ *
+ * L = 0 always gives black and L = 255 always gives white.
+ * Brightness is not normalised across hue.
+ *
+ * H >= 0 < 6 * HUE_REGION
+ * L >= 0 <= 255
+ *
+ * HUE_REGION is an arbitrary slicing of the colour space selected to fit
+ * into the integer type.
+ *
+ * https://en.wikipedia.org/wiki/Hue#Computing_hue_from_RGB
+ */
+static struct colour hltorgb(byte h, byte l)
+{
+	struct colour result;
+
+	unsigned int r, g, b;
+	byte region = h / HUE_REGION;
+
+	switch (region) {
+	case 0:
+		r = 255;
+		g = incline(region, h);
+		b = 0;
+		break;
+
+	case 1:
+		r = decline(region, h);
+		g = 255;
+		b = 0;
+		break;
+
+	case 2:
+		r = 0;
+		g = 255;
+		b = incline(region, h);
+		break;
+
+	case 3:
+		r = 0;
+		g = decline(region, h);
+		b = 255;
+		break;
+
+	case 4:
+		r = incline(region, h);
+		g = 0;
+		b = 255;
+		break;
+
+	case 5:
+		r = 255;
+		g = 0;
+		b = decline(region, h);
+		break;
+
+	default:
+		r = 0;
+		g = 0;
+		b = 0;
+		error("invalid hue %u", h);
+	}
+
+	if (l < 127) {
+		r -= r * (128 -l) / 128;
+		g -= g * (128 -l) / 128;
+		b -= b * (128 -l) / 128;
+	}
+
+	if (l > 127) {
+		r += (255 - r) * (l - 128) / 127;
+		g += (255 - g) * (l - 128) / 127;
+		b += (255 - b) * (l - 128) / 127;
+	}
+
+	result.r = r;
+	result.g = g;
+	result.b = b;
+
+	return result;
 }
 
 /* wrap around ring */
@@ -95,7 +189,8 @@ static void draw(struct pixel *p, unsigned int bufp, struct animation *a,
 		stop -= RING_PIXELS / a->segments;
 
 	for (i = start; i < stop; i++)
-		pixel_set(p, (bufp * RING_PIXELS) + wrap(i), a->fg);
+		pixel_set(p, (bufp * RING_PIXELS) + wrap(i),
+				hltorgb(result[HUE], result[LIGHTNESS]));
 }
 
 void animation_render(struct pixel *p, unsigned int bufp, struct animation *a)
@@ -110,23 +205,31 @@ void animation_render(struct pixel *p, unsigned int bufp, struct animation *a)
 		return;
 	}
 
-	/* fill is animated or static not both */
-	if (a->ap[FILL].divider == 0)
-		result[FILL] = a->ap[FILL].constant;
-	else
-		result[FILL] = a->ap[FILL].value;
-
+	/* FIXME: fix wrapping for hue and lighness so we can still add
+	 * constant. */
 	for (pr = NONE; pr < PROPERTIES; pr++) {
-		if (pr == FILL)
-			continue;
+		switch(pr) {
+		case FILL:
+		case HUE:
+		case HUE2:
+		case LIGHTNESS:
+		case LIGHTNESS2:
+			if (a->ap[pr].divider == 0)
+				result[pr] = a->ap[pr].constant;
+			else
+				result[pr] = a->ap[pr].value;
 
-		result[pr] = a->ap[pr].constant;
+			break;
 
-		if (a->ap[pr].divider > 0)
-			result[pr] += a->ap[pr].value;
+		default:
+			result[pr] = a->ap[pr].constant;
+
+			if (a->ap[pr].divider > 0)
+				result[pr] += a->ap[pr].value;
+		}
 	}
 
-	clear(p, bufp, a->bg);
+	clear(p, bufp, hltorgb(result[HUE2], result[LIGHTNESS2]));
 
 	for (i = 0; i < a->segments; i++) {
 		draw(p, bufp, a, result, i * RING_PIXELS / a->segments,
@@ -188,6 +291,16 @@ void animation_tock(struct animation *a, enum propertytype p,
 		move(&a->ap[p], RING_PIXELS, delta);
 		break;
 
+	case HUE:
+	case HUE2:
+		move(&a->ap[p], 239, delta);
+		break;
+
+	case LIGHTNESS:
+	case LIGHTNESS2:
+		move(&a->ap[p], 255, delta);
+		break;
+
 	case NONE:
 		break;
 
@@ -234,6 +347,14 @@ static unsigned int period(struct animation *a, enum propertytype p)
 
 	case ROTATION:
 	case OFFSET:
+		return a->ap[p].step;
+
+	case HUE:
+	case HUE2:
+		return a->ap[p].step;
+
+	case LIGHTNESS:
+	case LIGHTNESS2:
 		return a->ap[p].step;
 
 	default:

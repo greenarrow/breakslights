@@ -30,10 +30,6 @@ struct animation {
 	/* animate-able properties */
 	struct property ap[PROPERTIES];
 
-	/* fixed properties */
-	struct colour fg;
-	struct colour bg;
-
 	byte segments;
 	boolean mirror;
 	enum filltype fill;
