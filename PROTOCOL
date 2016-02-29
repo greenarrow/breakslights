@@ -18,12 +18,10 @@ R[xx] A[xx]                         assign animation
 A[xx] L                             reset
 A[xx] J[0|1]                        step (back / forward)
 A[xx] Y[0|1]                        sync (start / end)
-A[xx] CF[rrggbb]                    set forground colour
-A[xx] CB[rrggbb]                    set background colour
 A[xx] S[xx]                         set segments
 A[xx] I[0|1]                        set mirror segments
-A[xx] [F|O|T|E][C|N|X|S|D][xx]      set property value
-A[xx] [F|O|T|E][J|I|B|V][0|1]       set property value
+A[xx] [property][C|N|X|S|D][xx]     set property value
+A[xx] [property][J|I|B|V][0|1]      set property value
 
 # fill types
 S = SOLID
@@ -33,6 +31,10 @@ F = FILL
 O = ROTATION
 T = OFFSET
 E = STROBE
+H = HUE
+B = LIGHTNESS
+U = HUE2
+G = LIGHNESS2
 
 # values
 C = CONSTANT
