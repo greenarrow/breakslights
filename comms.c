@@ -99,23 +99,6 @@ static char readhex(char **cursor, byte *result)
 	return 0;
 }
 
-static char readcolour(char **cursor, struct colour *result)
-{
-	struct colour tmp;
-
-	if (readhex(cursor, &tmp.r) == -1)
-		return -1;
-
-	if (readhex(cursor, &tmp.g) == -1)
-		return -1;
-
-	if (readhex(cursor, &tmp.b) == -1)
-		return -1;
-
-	*result = tmp;
-	return 0;
-}
-
 static byte getproperty(const char p)
 {
 	switch (p) {
@@ -125,6 +108,14 @@ static byte getproperty(const char p)
 		return ROTATION;
 	case 'T':
 		return OFFSET;
+	case 'H':
+		return HUE;
+	case 'B':
+		return LIGHTNESS;
+	case 'U':
+		return HUE2;
+	case 'G':
+		return LIGHTNESS2;
 	default:
 		return NONE;
 	}
@@ -211,24 +202,6 @@ static int handle_animation(char **cursor, char cmd, struct animation *a)
 		animation_sync(a, !readbool(cursor));
 		break;
 
-	case 'C':
-		switch (readchar(cursor)) {
-		case 'F':
-
-			if (readcolour(cursor, &a->fg) == -1)
-				return -1;
-
-			break;
-
-		case 'B':
-			if (readcolour(cursor, &a->bg) == -1)
-				return -1;
-
-			break;
-		}
-
-		break;
-
 	case 'S':
 		if (readhex(cursor, &a->segments) == -1)
 			return -1;
@@ -242,6 +215,10 @@ static int handle_animation(char **cursor, char cmd, struct animation *a)
 	case 'O':
 	case 'T':
 	case 'E':
+	case 'H':
+	case 'B':
+	case 'U':
+	case 'G':
 		if (handle_property(cursor, cmd, a) == -1) {
 			debug("bad property %c", cmd);
 			return -1;
