@@ -292,7 +292,7 @@ static int handle_modal(struct machine *m, char **cursor)
 		break;
 
 	case 'I':
-		output("D%.3u\n", m->missed);
+		output("C%u D%u", m->clock, m->missed);
 		break;
 
 	case 'T':
