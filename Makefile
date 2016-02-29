@@ -13,17 +13,20 @@ REGRESSION_TESTS = tests/fills.lc tests/strobe.lc tests/chase.lc \
 	tests/mirror.lc tests/chopflash.lc \
 	tests/ripple.lc tests/shadows.lc tests/multiprop.lc
 
-.PHONY:		all test clean
+.PHONY:		all test clean pylint
 
 %.reg:		% breakslights
 	./breakslights < $< | diff -u -- $<.stdout -
 	$(VALGRIND) -- ./breakslights < $< > /dev/null
 
-default:	breakslights test
+default:	breakslights test pylint
 
 test:		$(addsuffix .reg,$(REGRESSION_TESTS))
 
 breakslights:	pixel.o ring.o animation.o comms.o machine.o breakslights.o
+
+pylint:
+	pylint -E breakslights.py render.py
 
 clean:
 	rm -f *.o breakslights
