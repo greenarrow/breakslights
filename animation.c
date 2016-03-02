@@ -14,8 +14,10 @@ struct animation *animation_new()
 {
 	struct animation *a = malloc(sizeof(struct animation));
 
-	if (a == NULL)
+	if (a == NULL) {
+		error("malloc error");
 		return NULL;
+	}
 
 	animation_clear(a);
 	return a;

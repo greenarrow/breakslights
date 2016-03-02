@@ -14,8 +14,10 @@ struct ring *ring_new(byte offset)
 {
 	struct ring *r = malloc(sizeof(struct ring));
 
-	if (r == NULL)
+	if (r == NULL) {
+		error("malloc error");
 		return NULL;
+	}
 
 	r->animation = 0;
 	r->offset = offset;

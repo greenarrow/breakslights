@@ -41,8 +41,13 @@ void machine_set_rings(struct machine *m, const int n)
 	int i;
 
 	free_rings(m);
-
 	m->rings = malloc(n * sizeof(struct ring*));
+
+	if (m->rings == NULL) {
+		error("malloc error");
+		return;
+	}
+
 	m->nrings = n;
 
 	for (i = 0; i < n; i++)
@@ -59,8 +64,13 @@ void machine_set_animations(struct machine *m, const int n)
 	int i;
 
 	free_animations(m);
-
 	m->animations = malloc(n * sizeof(struct animation*));
+
+	if (m->animations == NULL) {
+		error("malloc error");
+		return;
+	}
+
 	m->nanimations = n;
 
 	for (i = 0; i < n; i++)
