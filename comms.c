@@ -280,7 +280,7 @@ static int handle_ring(struct machine *m, char **cursor, char cmd,
 	return 0;
 }
 
-static int handle_modal(struct machine *m, char **cursor, char cmd)
+static int handle_modal(struct machine *m, char **cursor)
 {
 	byte value;
 
@@ -372,7 +372,7 @@ int handle_line(struct machine *m, char *line)
 			a = NULL;
 			r = NULL;
 
-			if (handle_modal(m, &cursor, cmd) == -1) {
+			if (handle_modal(m, &cursor) == -1) {
 				debug("modal read error");
 				goto error;
 			}
