@@ -38,7 +38,7 @@ def main():
 
     while True:
         try:
-            b = Breakslights("/dev/ttyACM0")
+            b = Breakslights("/dev/ttyUSB0")
 
         except RuntimeError:
             if retries > 0:
