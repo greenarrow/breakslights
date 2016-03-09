@@ -14,8 +14,8 @@
 #include "uart.h"
 
 
-/* more than enough time to catch 3 extra characters at 9600 baud */
-#define UART_WAIT 5
+/* more than enough time to catch 3 extra characters at 57600 baud */
+#define UART_WAIT 1
 
 struct machine m;
 struct uart u;

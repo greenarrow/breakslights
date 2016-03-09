@@ -7,7 +7,7 @@ OBJCOPY ?= avr-objcopy
 SIZE ?= avr-size
 AVRDUDE ?= avrdude
 
-BAUD ?= 9600
+BAUD ?= 57600
 
 DEVICE ?= atmega168
 CLOCK ?= 16000000
