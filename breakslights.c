@@ -26,11 +26,6 @@ void setup()
 	cli();
 	uart_init(&u);
 
-	/* FIXME: select most appropriate frequency based on min / max desired
-	* speeds; also consider logarithmic speeds. */
-
-	/* FIXME: ensure bytes are not lost in serial communications. */
-
 	/* initialize timer1 */
 	TCCR1A = 0;
 	TCCR1B = 0;
