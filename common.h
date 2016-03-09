@@ -5,6 +5,8 @@
 #include <stdbool.h>
 #include <stdarg.h>
 
+void serprint(const char *fmt, ...);
+
 #ifdef POSIX
 #define error(...) { \
 	fprintf(stderr, "%s:%d: ", __FILE__, __LINE__); \

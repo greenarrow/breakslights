@@ -69,7 +69,7 @@ breakslights:	pixel.o ring.o animation.o comms.o machine.o breakslights.o
 
 breakslights.elf:	pixel.avr.o ring.avr.o animation.avr.o comms.avr.o \
 				neopixel.avr.o machine.avr.o \
-				uart.avr.o breakslights.avr.o
+				uart.avr.o common.avr.o breakslights.avr.o
 
 flash:		breakslights.hex.flash
 
