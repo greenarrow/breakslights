@@ -74,7 +74,7 @@ breakslights.elf:	pixel.avr.o ring.avr.o animation.avr.o comms.avr.o \
 flash:		breakslights.hex.flash
 
 pylint:
-	pylint -E breakslights.py render.py
+	pylint -E breakslights.py render.py player.py
 
 clean:
 	rm -f *.o $(TARGETS)
