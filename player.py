@@ -1,12 +1,182 @@
 #!/usr/bin/env python
 
 import sys
+import types
 from functools import partial
+
+# We use two different ALSA MIDI modules.
+# 1. pyalsa.alsaseq - the official bindings - weird poll implementation not
+#    compatible with Qt - don't use threads as a workaround.
+# 2. alsaseq - third party bindings - give us actual ALSA file descriptor
+#    to block on in Qt.
+# https://github.com/physacco/pyalsa/blob/master/utils/aseqdump.py
+# https://github.com/bear24rw/alsa-utils/blob/master/seq/aseqdump/aseqdump.c
+import alsaseq
+import pyalsa.alsaseq
+
 from PyQt4 import QtGui
 from PyQt4 import QtCore
+
 import breakslights
 
 RING_PIXELS = 60
+
+def error(msg):
+    sys.stderr.write(msg)
+    sys.stderr.write("\n")
+
+class MIDIController(QtCore.QObject):
+    """Map a MIDI controller onto Qt widgets.
+
+    Loads a config file to map MIDI notes and continuous controllers onto a
+    set of labels. These labels can then be bound onto Qt widgets using the
+    bind() method."""
+
+    def loadconfig(self, filename):
+        self.config = {}
+        self.labels = {}
+        self.widgets = {}
+
+        for line in open(filename):
+            if line.startswith("#"):
+                continue
+
+            parts = [p for p in line.rstrip().split("\t") if len(p)]
+            self.config[parts[1]] = parts[0], int(parts[2])
+
+        for label, data in self.config.iteritems():
+            self.labels[data] = label
+
+    def ports(self):
+        sequencer = pyalsa.alsaseq.Sequencer()
+
+        for conn in sequencer.connection_list():
+            if len(conn[2]) > 0:
+                yield conn[0], (conn[1], conn[2][0][1])
+
+    def connect(self, client, port):
+        alsaseq.client('Breakslights', 1, 0, False)
+        alsaseq.connectfrom(0, client, port)
+
+        self.notifier = QtCore.QSocketNotifier(alsaseq.fd(),
+                                               QtCore.QSocketNotifier.Read,
+                                               self)
+
+        self.notifier.activated.connect(self.inputpending)
+        self.notifier.setEnabled(True)
+
+    def disconnect(self):
+        self.notifier.setEnabled(False)
+        os.close(alsaseq.fd())
+
+    def bind(self, label, widget, userData=None):
+        data = self.config.get(label)
+
+        if data is None:
+            error("failed to bind unmapped: %s" % label)
+            return
+
+        self.widgets[data] = (widget, userData)
+
+    def inputpending(self):
+        while alsaseq.inputpending() > 0:
+            result = alsaseq.input()
+
+            if result[0] in (alsaseq.SND_SEQ_EVENT_NOTEON,
+                             alsaseq.SND_SEQ_EVENT_NOTEOFF):
+
+                key = "NOTE", result[7][1]
+                value = result[0] == alsaseq.SND_SEQ_EVENT_NOTEON
+
+            elif result[0] == alsaseq.SND_SEQ_EVENT_CONTROLLER:
+                key = "CC", result[7][4]
+                value = result[7][5]
+
+            else:
+                raise NotImplementedError
+
+            try:
+                widget, data = self.widgets[key]
+
+            except KeyError:
+                error("unbound control: %s %d - %s" % (key[0], key[1],
+                                                       self.labels.get(key)))
+
+                continue
+
+            if isinstance(widget, QtGui.QPushButton):
+                if isinstance(value, types.BooleanType):
+                    self.handleQPushButton(widget, value)
+
+                elif isinstance(value, types.IntType):
+                    self.handleQPushButton(widget, value == 127)
+
+                else:
+                    raise NotImplementedError
+
+            elif isinstance(widget, QtGui.QButtonGroup):
+                if isinstance(value, types.BooleanType):
+                    self.handleQButtonGroup(widget, value, data)
+
+                elif isinstance(value, types.IntType):
+                    self.handleQButtonGroup(widget, value == 127, data)
+
+                else:
+                    raise NotImplementedError
+
+            elif isinstance(widget, QtGui.QSlider):
+                if isinstance(value, types.BooleanType):
+                    raise NotImplementedError
+
+                elif not isinstance(value, types.IntType):
+                    raise NotImplementedError
+
+                self.handleQSlider(widget, value)
+
+            else:
+                raise NotImplementedError
+
+    def handleQPushButton(self, widget, value):
+        event = QtGui.QMouseEvent(
+            (QtCore.QEvent.MouseButtonRelease,
+             QtCore.QEvent.MouseButtonPress)[value],
+            QtCore.QPoint(0, 0),
+            QtCore.Qt.LeftButton,
+            QtCore.Qt.LeftButton,
+            QtCore.Qt.NoModifier,
+        )
+
+        QtCore.QCoreApplication.sendEvent(widget, event)
+
+    def handleQButtonGroup(self, widget, value, reverse):
+        if not value:
+            return
+
+        buttons = widget.buttons()
+
+        if reverse:
+            buttons.reverse()
+
+        match = None
+
+        for button in buttons:
+            if button.isChecked():
+                match = button
+                break
+
+        if match is None:
+            buttons[0].click()
+            return
+
+        index = buttons.index(match) + 1
+
+        if index >= len(buttons):
+            index -= len(buttons)
+
+        buttons[index].click()
+
+    def handleQSlider(self, widget, value):
+        widget.setValue(float(value) * widget.maximum() / 127.0)
 
 class VerticalLabel(QtGui.QLabel):
     """Custom QLabel widget with vertical text."""
