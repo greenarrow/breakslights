@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+import os
 import sys
 import types
 from functools import partial
@@ -18,6 +19,185 @@ from PyQt4 import QtGui
 from PyQt4 import QtCore
 
 import breakslights
+
+OCSS = """
+QWidget
+{
+    color: black;
+    background-color: #444444;
+    selection-color: #2a2a2a;
+    selection-background-color: #646464;
+}
+
+QTabWidget{
+    border: 1px transparent black;
+}
+
+QTabWidget::pane {
+    border: 1px solid #444;
+    border-radius: 3px;
+    padding: 3px;
+}
+"""
+
+CSS = """
+QWidget
+{
+    color: silver;
+    background-color: #444444;
+}
+
+QPushButton
+{
+    background-color: #2a2a2a;
+    border-width: 1px;
+    border-color: #4A4949;
+    border-style: solid;
+    padding-top: 5px;
+    padding-bottom: 5px;
+    padding-left: 5px;
+    padding-right: 5px;
+    border-radius: 2px;
+    outline: none;
+}
+
+QPushButton:disabled
+{
+    color: 444444;
+    background: 333333;
+}
+
+QPushButton:checked
+{
+    color: black;
+    background-color: #fffa87;
+}
+
+QPushButton:hover
+{
+    background-color: #646464;
+}
+
+QSlider::groove:vertical {
+    border: 1px solid #3A3939;
+    width: 8px;
+    background: #201F1F;
+    margin: 0 0px;
+    border-radius: 2px;
+}
+
+QSlider::handle:vertical {
+    background: QLinearGradient( x1: 0, y1: 0, x2: 0, y2: 1, stop: 0.0 silver,
+      stop: 0.2 #a8a8a8, stop: 1 #727272);
+    border: 1px solid #3A3939;
+    width: 14px;
+    height: 14px;
+    margin: 0 -4px;
+    border-radius: 2px;
+}
+
+QWidget:focus, QMenuBar:focus
+{
+    border: 1px solid #78879b;
+}
+
+QTabWidget:focus, QCheckBox:focus, QRadioButton:focus, QSlider:focus
+{
+    border: none;
+}
+
+QTabWidget{
+    /*border: 1px transparent black;*/
+}
+
+QTabWidget::pane {
+    border: 1px solid #444;
+    border-radius: 3px;
+    padding: 3px;
+}
+
+QTabBar
+{
+    qproperty-drawBase: 0;
+    left: 5px; /* move to the right by 5px */
+}
+
+QTabBar:focus
+{
+    border: 0px transparent black;
+}
+
+QTabBar::close-button  {
+    image: url(:/qss_icons/rc/close.png);
+    background: transparent;
+}
+
+QTabBar::close-button:hover
+{
+    image: url(:/qss_icons/rc/close-hover.png);
+    background: transparent;
+}
+
+QTabBar::close-button:pressed {
+    image: url(:/qss_icons/rc/close-pressed.png);
+    background: transparent;
+}
+
+/* TOP TABS */
+QTabBar::tab:top {
+    color: #b1b1b1;
+    border: 1px solid #4A4949;
+    border-bottom: 1px transparent black;
+    background-color: #302F2F;
+    padding: 5px;
+    border-top-left-radius: 2px;
+    border-top-right-radius: 2px;
+}
+
+QTabBar::tab:top:!selected
+{
+    color: #b1b1b1;
+    background-color: #201F1F;
+    border: 1px transparent #4A4949;
+    border-bottom: 1px transparent #4A4949;
+    border-top-left-radius: 0px;
+    border-top-right-radius: 0px;
+}
+
+QTabBar::tab:top:!selected:hover {
+    background-color: #48576b;
+}
+
+"""
+
+"""
+QWidget:item:hover
+{
+    background-color: #272735;
+    color: black;
+}
+
+QWidget:item:selected
+{
+    background-color: #fffa87;
+}
+
+QPushButton:focus {
+    background-color: #3d8ec9;
+    color: white;
+}
+    selection-color: #00324a;
+    selection-background-color: #fffa87;
+button #4d4d5a
+hover #272735
+selected #fffa87
+text #80b2ca
+seltext #00324a
+border #313136
+
+bg #595966
+frameboarder #404046
+"""
 
 RING_PIXELS = 60
 
@@ -490,6 +670,8 @@ class Window(QtGui.QWidget):
         splitter.addWidget(left)
         splitter.addWidget(right)
         box.addWidget(splitter)
+
+        self.setStyleSheet(CSS)
 
 def main():
     app = QtGui.QApplication(sys.argv)
