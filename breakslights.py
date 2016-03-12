@@ -8,6 +8,11 @@ class Breakslights(object):
     def __init__(self, port):
         self.serial = serial.Serial(port, 57600, rtscts=True, timeout=4)
 
+        # reset device
+        self.serial.setDTR(True)
+        self.serial.flushInput()
+        self.serial.setDTR(False)
+
         header = self.serial.readline().rstrip()
 
         if not header.startswith("breakslights"):
