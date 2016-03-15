@@ -74,7 +74,7 @@ void loop()
 	machine_init(&m);
 
 #ifndef POSIX
-        output("breakslights");
+	output("breakslights");
 #endif
 
 	debug("loop");
