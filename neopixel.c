@@ -1,5 +1,8 @@
-#include <Arduino.h>
+#include <stdbool.h>
 #include <util/delay.h>
+#include <avr/io.h>
+
+typedef bool boolean;
 
 /*
  This is an example of how simple driving a Neopixel can be
@@ -100,8 +103,7 @@ void sendByte( unsigned char byte ) {
     unsigned char bit;
 
     for( bit = 0 ; bit < 8 ; bit++ ) {
-      
-      sendBit( bitRead( byte , 7 ) );                // Neopixel wants bit in highest-to-lowest order
+      sendBit((byte >>  7) & 0x1);                // Neopixel wants bit in highest-to-lowest order
                                                      // so send highest bit (bit #7 in an 8-bit byte since they start at 0)
       byte <<= 1;                                    // and then shift left so bit 6 moves into 7, 5 moves into 6, etc
       
@@ -122,9 +124,7 @@ void sendByte( unsigned char byte ) {
 // Set the specified pin up as digital out
 
 void ledsetup() {
-  
-  bitSet( PIXEL_DDR , PIXEL_BIT );
-  
+	PIXEL_DDR |= _BV(PIXEL_BIT);
 }
 
 void sendPixel( unsigned char r, unsigned char g , unsigned char b )  {  
@@ -141,7 +141,6 @@ void sendPixel( unsigned char r, unsigned char g , unsigned char b )  {
 void show() {
 	_delay_us( (RES / 1000UL) + 1);				// Round up since the delay must be _at_least_ this long (too short might not work, too long not a problem)
 }
-
 
 /*
 
