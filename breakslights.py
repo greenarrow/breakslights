@@ -20,6 +20,7 @@ class Breakslights(object):
     def _getresponse(self):
         while True:
             reply = self.serial.readline().rstrip("\r\n")
+            assert len(reply)
 
             if re.match(r"^\d+$", reply) is not None:
                 return int(reply)
