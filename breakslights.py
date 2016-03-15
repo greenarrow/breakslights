@@ -6,7 +6,7 @@ import serial
 
 class Breakslights(object):
     def __init__(self, port):
-        self.serial = serial.Serial(port, 57600, rtscts=True)
+        self.serial = serial.Serial(port, 57600, rtscts=True, timeout=4)
 
         header = self.serial.readline().rstrip()
 
