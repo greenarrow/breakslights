@@ -36,7 +36,8 @@ CPPFLAGS += -DPOSIX=1
 
 REGRESSION_TESTS = tests/fills.lc tests/strobe.lc tests/chase.lc \
 	tests/mirror.lc tests/chopflash.lc \
-	tests/ripple.lc tests/shadows.lc tests/multiprop.lc
+	tests/ripple.lc tests/shadows.lc tests/multiprop.lc \
+	tests/offset.lc
 
 TARGETS = breakslights breakslights.elf breakslights.hex
 

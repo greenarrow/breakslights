@@ -1,0 +1,22 @@
+# complete offset cycles for bounce and non-bounce with two mirrored segments
+MA02
+MR02
+R00 N00
+R01 N01
+A00 S02 I1
+A00 BC7f FC04
+A00 TD01
+A01 S02 I1
+A01 BC7f FC04
+A01 TD01 TB1
+MT
+MT
+MT
+MT
+MT
+MT
+MT
+MT
+MT
+MT
+MT
