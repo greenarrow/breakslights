@@ -35,13 +35,8 @@
 #define debug(...) {}
 #endif
 
-#ifdef POSIX
-#include <stdbool.h>
 typedef bool boolean;
 typedef unsigned char byte;
-#else
-#include <Arduino.h>
-#endif
 
 struct colour {
 	byte r;

@@ -1,25 +1,35 @@
 /*
- * Main program builds for Arduino or for POSIX using standard input and
+ * Main program builds for AVR or for POSIX using standard input and
  * output when POSIX is defined.
  */
 
 #include <stdlib.h>
+#ifndef POSIX
+#include <avr/interrupt.h>
+#include <util/delay.h>
+#endif
 
 #include "machine.h"
 #include "comms.h"
+#include "uart.h"
+
+
+/* more than enough time to catch 3 extra characters at 9600 baud */
+#define UART_WAIT 5
 
 struct machine m;
+struct uart u;
 
 void setup()
 {
 #ifndef POSIX
-	serial_init(9600);
+	cli();
+	uart_init(&u);
+
 	/* FIXME: select most appropriate frequency based on min / max desired
 	* speeds; also consider logarithmic speeds. */
 
 	/* FIXME: ensure bytes are not lost in serial communications. */
-
-	noInterrupts();
 
 	/* initialize timer1 */
 	TCCR1A = 0;
@@ -37,7 +47,7 @@ void setup()
 	TCCR0B = 0x0;
 	TCCR2B = 0x0;
 
-	interrupts();
+	sei();
 #endif
 }
 
@@ -57,11 +67,11 @@ ISR(TIMER1_COMPA_vect)
 
 void loop()
 {
+#ifdef POSIX
 	char buf[256];
 	byte nb = 0;
 	byte b;
 
-#ifdef POSIX
 	int c;
 #endif
 
@@ -85,9 +95,7 @@ void loop()
 			break;
 
 		b = c;
-#else
-		b = serial_getbyte();
-#endif
+
 		if (b > 0) {
 			buf[nb] = b;
 			nb++;
@@ -95,22 +103,54 @@ void loop()
 
 		if (b == '\n') {
 			buf[nb] = '\0';
-
-#ifdef POSIX
 			handle_line(&m, buf);
+			nb = 0;
+		}
 #else
-			if (handle_line(&m, buf) == -1) {
+		switch (u.state) {
+		case U_IDLE:
+			break;
+
+		case U_ERROR:
+			uart_puts("error\r\n");
+			uart_clear(&u);
+			break;
+
+		case U_READY:
+			_delay_ms(UART_WAIT);
+			/* protect buffer from modification by interrupt */
+			cli();
+
+			if (handle_line(&m, u.buffer) == -1) {
 				output("1");
 			} else {
 				output("0");
 			}
+
+			uart_clear(&u);
+
+			sei();
+			uart_cts(true);
+			break;
+
+		default:
+			uart_puts("error\r\n");
+		}
 #endif
 
-			nb = 0;
-		}
-
 		if (draw) {
+#ifndef POSIX
+			uart_cts(false);
+			_delay_ms(UART_WAIT);
+
+			cli();
 			machine_flush(&m);
+			sei();
+
+			uart_cts(true);
+#else
+			machine_flush(&m);
+#endif
 			machine_tick(&m);
 			draw = false;
 		}
@@ -119,11 +159,9 @@ void loop()
 	machine_destroy(&m);
 }
 
-#ifdef POSIX
 int main()
 {
 	setup();
 	loop();
 	return 0;
 }
-#endif
