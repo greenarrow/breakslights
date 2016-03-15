@@ -1,2 +1,5 @@
 breakslights
+breakslights.elf
+breakslights.hex
 *.o
+*.d
