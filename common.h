@@ -1,12 +1,8 @@
 #ifndef COMMON_H
 #define COMMON_H
 
-#ifdef POSIX
 #include <stdio.h>
-#else
-#include "serial.h"
-#endif
-
+#include <stdbool.h>
 #include <stdarg.h>
 
 #ifdef POSIX
