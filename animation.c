@@ -4,6 +4,7 @@
  */
 
 #include <stdlib.h>
+#include <stdbool.h>
 
 #include "common.h"
 #include "config.h"
@@ -171,47 +172,56 @@ static void clear(struct pixel *p, unsigned int bufp, struct colour c)
 		pixel_set(p, (bufp * RING_PIXELS) + wrap(i, RING_PIXELS), c);
 }
 
-static void draw(struct pixel *p, unsigned int bufp, struct animation *a,
-				unsigned int segoff, bool mirror)
-{
-	/* FIXME: add support for segment mirroring */
-	unsigned int start, stop;
-	byte i;
-
-	start = a->ap[OFFSET].value + a->ap[ROTATION].value + segoff;
-
-	if (mirror) {
-		start += (RING_PIXELS / a->segments) -
-					(a->ap[FILL].value / a->segments);
-	}
-
-	start = wrap(start, RING_PIXELS);
-
-	stop = start + (a->ap[FILL].value / a->segments);
-
-	if (stop - start > RING_PIXELS / a->segments)
-		stop -= RING_PIXELS / a->segments;
-
-	for (i = start; i < stop; i++)
-		pixel_set(p, (bufp * RING_PIXELS) + wrap(i, RING_PIXELS),
-			hltorgb(a->ap[HUE].value, a->ap[LIGHTNESS].value));
-}
-
 void animation_render(struct pixel *p, unsigned int bufp, struct animation *a)
 {
 	struct colour black = {0, 0, 0};
 	byte i;
+	byte s;
+	int x;
+	bool filled;
 
 	if (a == NULL) {
 		clear(p, bufp, black);
 		return;
 	}
 
-	clear(p, bufp, hltorgb(a->ap[HUE2].value, a->ap[LIGHTNESS2].value));
+	for (i = 0; i < RING_PIXELS / a->segments; i++) {
+		filled = false;
 
-	for (i = 0; i < a->segments; i++) {
-		draw(p, bufp, a, i * RING_PIXELS / a->segments,
-						a->mirror && (i % 2));
+		/* linear fill */
+		if (i < a->ap[FILL].value / a->segments)
+			filled = true;
+
+		for (s = 0; s < a->segments; s++) {
+			x = i + a->ap[OFFSET].value;
+
+			/* if segment is mirrored translate */
+			if (a->mirror && s % 2 != 0)
+				x = (RING_PIXELS / a->segments) - x - 1;
+
+			/* we are in generic segment space so we can wrap
+			 * around the segment */
+			x = wrap(x, RING_PIXELS / a->segments);
+
+			/* translate into real space of this segment */
+			x = s * (RING_PIXELS / a->segments) + x;
+			x += a->ap[ROTATION].value;
+
+			/* we are in pixel space so we can wrap around the
+			 * ring */
+			x = wrap(x, RING_PIXELS);
+
+			/* this will be fg / bg as set by strobe */
+			if (filled) {
+				pixel_set(p, (bufp * RING_PIXELS) + x,
+						hltorgb(a->ap[HUE].value,
+						a->ap[LIGHTNESS].value));
+			} else {
+				pixel_set(p, (bufp * RING_PIXELS) + x,
+						hltorgb(a->ap[HUE2].value,
+						a->ap[LIGHTNESS2].value));
+			}
+		}
 	}
 }
 
