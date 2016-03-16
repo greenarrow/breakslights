@@ -287,11 +287,14 @@ void animation_sync(struct animation *a, bool end)
 	enum propertytype p;
 
 	for (p = 0; p < PROPERTIES; p++) {
-		if (end)
-			/* FIXME: when no max set */
-			a->ap[p].value = a->ap[p].max;
-		else
+		if (end) {
+			if (a->ap[p].max == 0)
+				a->ap[p].value = limit(a, p);
+			else
+				a->ap[p].value = a->ap[p].max;
+		} else {
 			a->ap[p].value = a->ap[p].min;
+		}
 	}
 }
 
