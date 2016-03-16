@@ -167,72 +167,45 @@ static void clear(struct pixel *p, unsigned int bufp, struct colour c)
 }
 
 static void draw(struct pixel *p, unsigned int bufp, struct animation *a,
-				byte result[PROPERTIES], unsigned int segoff,
-				bool mirror)
+				unsigned int segoff, bool mirror)
 {
 	/* FIXME: add support for segment mirroring */
 	unsigned int start, stop;
 	byte i;
 
-	start = result[OFFSET] + result[ROTATION] + segoff;
+	start = a->ap[OFFSET].value + a->ap[ROTATION].value + segoff;
 
 	if (mirror) {
 		start += (RING_PIXELS / a->segments) -
-					(result[FILL] / a->segments);
+					(a->ap[FILL].value / a->segments);
 	}
 
 	start = wrap(start);
 
-	stop = start + (result[FILL] / a->segments);
+	stop = start + (a->ap[FILL].value / a->segments);
 
 	if (stop - start > RING_PIXELS / a->segments)
 		stop -= RING_PIXELS / a->segments;
 
 	for (i = start; i < stop; i++)
 		pixel_set(p, (bufp * RING_PIXELS) + wrap(i),
-				hltorgb(result[HUE], result[LIGHTNESS]));
+			hltorgb(a->ap[HUE].value, a->ap[LIGHTNESS].value));
 }
 
 void animation_render(struct pixel *p, unsigned int bufp, struct animation *a)
 {
 	struct colour black = {0, 0, 0};
 	byte i;
-	enum propertytype pr;
-	byte result[PROPERTIES];
 
 	if (a == NULL) {
 		clear(p, bufp, black);
 		return;
 	}
 
-	/* FIXME: fix wrapping for hue and lighness so we can still add
-	 * constant. */
-	for (pr = NONE; pr < PROPERTIES; pr++) {
-		switch(pr) {
-		case FILL:
-		case HUE:
-		case HUE2:
-		case LIGHTNESS:
-		case LIGHTNESS2:
-			if (a->ap[pr].divider == 0)
-				result[pr] = a->ap[pr].constant;
-			else
-				result[pr] = a->ap[pr].value;
-
-			break;
-
-		default:
-			result[pr] = a->ap[pr].constant;
-
-			if (a->ap[pr].divider > 0)
-				result[pr] += a->ap[pr].value;
-		}
-	}
-
-	clear(p, bufp, hltorgb(result[HUE2], result[LIGHTNESS2]));
+	clear(p, bufp, hltorgb(a->ap[HUE2].value, a->ap[LIGHTNESS2].value));
 
 	for (i = 0; i < a->segments; i++) {
-		draw(p, bufp, a, result, i * RING_PIXELS / a->segments,
+		draw(p, bufp, a, i * RING_PIXELS / a->segments,
 						a->mirror && (i % 2));
 	}
 }
@@ -388,12 +361,16 @@ void animation_tick(struct animation *a, int clock)
 	unsigned int d;
 
 	for (p = 0; p < PROPERTIES; p++) {
-		if (a->ap[p].divider == 0)
+		/* property is not animated */
+		if (a->ap[p].divider == 0) {
+			a->ap[p].value = a->ap[p].constant;
 			continue;
+		}
 
 		/* FIXME: may be incorrect */
 		d = period(a, p);
 
+		/* property is animated */
 		if (clock % (a->ap[p].divider * d) == 0)
 			animation_tock(a, p, d);
 	}
