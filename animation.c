@@ -246,40 +246,40 @@ static void move(struct property *p, byte size, unsigned int delta)
 }
 
 /*
+ * Return maximum allowed value of property.
+ */
+static byte limit(struct animation *a, enum propertytype p)
+{
+	switch (p) {
+	case FILL:
+	case ROTATION:
+		return RING_PIXELS;
+
+	case OFFSET:
+		return RING_PIXELS / a->segments;
+
+	case HUE:
+	case HUE2:
+		return 239;
+
+	case LIGHTNESS:
+	case LIGHTNESS2:
+		return 255;
+
+	default:
+		error("invalid animate");
+	}
+
+	return 0;
+}
+
+/*
  * Advance a property by one "frame".
  */
 void animation_tock(struct animation *a, enum propertytype p,
 						unsigned int delta)
 {
-	switch (p) {
-	case FILL:
-		move(&a->ap[p], RING_PIXELS, delta);
-		break;
-
-	case OFFSET:
-		move(&a->ap[p], RING_PIXELS / a->segments, delta);
-		break;
-
-	case ROTATION:
-		move(&a->ap[p], RING_PIXELS, delta);
-		break;
-
-	case HUE:
-	case HUE2:
-		move(&a->ap[p], 239, delta);
-		break;
-
-	case LIGHTNESS:
-	case LIGHTNESS2:
-		move(&a->ap[p], 255, delta);
-		break;
-
-	case NONE:
-		break;
-
-	default:
-		error("invalid animate");
-	}
+	move(&a->ap[p], limit(a, p), delta);
 }
 
 void animation_sync(struct animation *a, bool end)
