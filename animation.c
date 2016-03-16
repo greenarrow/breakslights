@@ -149,11 +149,16 @@ static struct colour hltorgb(byte h, byte l)
 	return result;
 }
 
-/* wrap around ring */
-static byte wrap(byte value)
+/*
+ * Wrap around ends of block of size in both directions
+ */
+static int wrap(int value, int size)
 {
-	while (value >= RING_PIXELS)
-		value -= RING_PIXELS;
+	while (value >= size)
+		value -= size;
+
+	while (value < 0)
+		value += size;
 
 	return value;
 }
@@ -163,7 +168,7 @@ static void clear(struct pixel *p, unsigned int bufp, struct colour c)
 	byte i;
 
 	for (i = 0; i < RING_PIXELS; i++)
-		pixel_set(p, (bufp * RING_PIXELS) + wrap(i), c);
+		pixel_set(p, (bufp * RING_PIXELS) + wrap(i, RING_PIXELS), c);
 }
 
 static void draw(struct pixel *p, unsigned int bufp, struct animation *a,
@@ -180,7 +185,7 @@ static void draw(struct pixel *p, unsigned int bufp, struct animation *a,
 					(a->ap[FILL].value / a->segments);
 	}
 
-	start = wrap(start);
+	start = wrap(start, RING_PIXELS);
 
 	stop = start + (a->ap[FILL].value / a->segments);
 
@@ -188,7 +193,7 @@ static void draw(struct pixel *p, unsigned int bufp, struct animation *a,
 		stop -= RING_PIXELS / a->segments;
 
 	for (i = start; i < stop; i++)
-		pixel_set(p, (bufp * RING_PIXELS) + wrap(i),
+		pixel_set(p, (bufp * RING_PIXELS) + wrap(i, RING_PIXELS),
 			hltorgb(a->ap[HUE].value, a->ap[LIGHTNESS].value));
 }
 
