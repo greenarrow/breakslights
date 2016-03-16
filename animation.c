@@ -257,11 +257,13 @@ static byte limit(struct animation *a, enum propertytype p)
 {
 	switch (p) {
 	case FILL:
-	case ROTATION:
 		return RING_PIXELS;
 
+	case ROTATION:
+		return RING_PIXELS - 1;
+
 	case OFFSET:
-		return RING_PIXELS / a->segments;
+		return (RING_PIXELS / a->segments) - 1;
 
 	case HUE:
 	case HUE2:
