@@ -4,6 +4,7 @@
  */
 
 #include <stdlib.h>
+#include <stdbool.h>
 #ifndef POSIX
 #include <avr/interrupt.h>
 #include <util/delay.h>
@@ -46,7 +47,7 @@ void setup()
 #endif
 }
 
-volatile boolean draw = false;
+volatile bool draw = false;
 volatile unsigned int missed = 0;
 
 #ifndef POSIX

@@ -2,8 +2,6 @@
 #include <util/delay.h>
 #include <avr/io.h>
 
-typedef bool boolean;
-
 /*
  This is an example of how simple driving a Neopixel can be
  This code is optimized for understandability and changability rather than raw speed
@@ -44,7 +42,7 @@ typedef bool boolean;
 // Actually send a bit to the string. We must to drop to asm to enusre that the complier does
 // not reorder things and make it so the delay happens in the wrong place.
 
-static void sendBit( boolean bitVal ) {
+static void sendBit( bool bitVal ) {
   
     if (  bitVal ) {				// 0 bit
       

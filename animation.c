@@ -168,7 +168,7 @@ static void clear(struct pixel *p, unsigned int bufp, struct colour c)
 
 static void draw(struct pixel *p, unsigned int bufp, struct animation *a,
 				byte result[PROPERTIES], unsigned int segoff,
-				boolean mirror)
+				bool mirror)
 {
 	/* FIXME: add support for segment mirroring */
 	unsigned int start, stop;
@@ -309,7 +309,7 @@ void animation_tock(struct animation *a, enum propertytype p,
 	}
 }
 
-void animation_sync(struct animation *a, boolean end)
+void animation_sync(struct animation *a, bool end)
 {
 	enum propertytype p;
 

@@ -27,7 +27,7 @@ struct machine {
 
 	/* modal running state */
 	byte chase_index;
-	boolean strobe_on;
+	bool strobe_on;
 
 	/* statistics */
 	byte missed;

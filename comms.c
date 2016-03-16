@@ -82,7 +82,7 @@ static char readchar(char **cursor)
 	return value;
 }
 
-static boolean readbool(char **cursor)
+static bool readbool(char **cursor)
 {
 	if (readchar(cursor) == '1')
 		return true;

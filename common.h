@@ -2,7 +2,6 @@
 #define COMMON_H
 
 #include <stdio.h>
-#include <stdbool.h>
 #include <stdarg.h>
 
 void serprint(const char *fmt, ...);
@@ -37,7 +36,6 @@ void serprint(const char *fmt, ...);
 #define debug(...) {}
 #endif
 
-typedef bool boolean;
 typedef unsigned char byte;
 
 struct colour {

@@ -3,6 +3,7 @@
  */
 
 #include <stdlib.h>
+#include <stdbool.h>
 
 #include "common.h"
 #include "config.h"
@@ -141,7 +142,7 @@ void machine_assign(struct machine *m, struct ring *r, byte n)
 	debug("assign animation %d", n);
 }
 
-static boolean tock(struct machine *m, byte divider)
+static bool tock(struct machine *m, byte divider)
 {
 	if (divider == 0)
 		return false;
