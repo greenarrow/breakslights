@@ -70,7 +70,7 @@ void pixel_flush(struct pixel *p)
 		printf("\n");
 	}
 #else
-	for (i = 0; i < RING_PIXELS * 3; i++)
+	for (i = 0; i < p->len * 3; i++)
 		sendByte(p->pixels[i]);
 
 	show();
