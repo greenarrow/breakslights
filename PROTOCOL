@@ -12,7 +12,7 @@ MT                                  clock advance
 MI                                  output statistics
 
 # ring
-R[xx] A[xx]                         assign animation
+R[xx] N[xx]                         assign animation
 
 # animation
 A[xx] L                             reset
