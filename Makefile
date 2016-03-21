@@ -9,7 +9,7 @@ AVRDUDE ?= avrdude
 
 BAUD ?= 57600
 
-DEVICE ?= atmega168
+DEVICE ?= atmega328p
 CLOCK ?= 16000000
 
 PROGRAMMER ?= -c usbtiny
