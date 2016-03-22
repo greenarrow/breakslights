@@ -10,12 +10,15 @@
 #define CTS_PORT	PORTB
 #define CTS_PIN		PINB1
 
-struct uart *tty;
+struct uart *tty = NULL;
 
 ISR(USART_RX_vect)
 {
 	char c;
 	c = UDR0;
+
+	if (tty == NULL)
+		return;
 
 	/* FIXME: we need to put up to 3 extra characters somewhere
 	 * as another line may have begun. The host currently sends lines
