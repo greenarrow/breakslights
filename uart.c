@@ -38,7 +38,7 @@ ISR(USART_RX_vect)
 
 	tty->buffer[tty->tail] = c;
 
-	if (tty->buffer[tty->tail] == '\n') {
+	if (c == '\n') {
 		uart_cts(false);
 		tty->buffer[tty->tail + 1] = '\0';
 		tty->state = U_READY;
