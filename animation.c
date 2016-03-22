@@ -80,7 +80,7 @@ static inline byte decline(unsigned int region, unsigned int value)
  *
  * https://en.wikipedia.org/wiki/Hue#Computing_hue_from_RGB
  */
-static struct colour hltorgb(byte h, byte l)
+struct colour hltorgb(byte h, byte l)
 {
 	struct colour result;
 

@@ -34,6 +34,8 @@ CPPFLAGS += -DPOSIX=1
 %.avr.o %.elf:	CC = avr-gcc
 %.avr.o %.elf:	CFLAGS += -W -O -mmcu=$(DEVICE) -DF_CPU=$(CLOCK)
 
+UNIT_TESTS = unit/hue
+
 REGRESSION_TESTS = tests/fills.lc tests/strobe.lc tests/chase.lc \
 	tests/mirror.lc tests/chopflash.lc \
 	tests/ripple.lc tests/shadows.lc tests/multiprop.lc \
@@ -42,6 +44,10 @@ REGRESSION_TESTS = tests/fills.lc tests/strobe.lc tests/chase.lc \
 TARGETS = breakslights breakslights.elf breakslights.hex
 
 .PHONY:		all test clean pylint flash
+
+%.unit:		%
+	$< | diff -u -- $<.stdout -
+	$(VALGRIND) -- $< > /dev/null
 
 %.reg:		% breakslights
 	./breakslights < $< | diff -u -- $<.stdout -
@@ -64,7 +70,11 @@ TARGETS = breakslights breakslights.elf breakslights.hex
 
 default:	$(TARGETS) test pylint
 
-test:		$(addsuffix .reg,$(REGRESSION_TESTS))
+test:		$(addsuffix .reg,$(REGRESSION_TESTS)) \
+			$(addsuffix .unit,$(UNIT_TESTS))
+
+unit/hue:	CPPFLAGS += -I.
+unit/hue:	unit/hue.o animation.o pixel.o
 
 breakslights:	pixel.o ring.o animation.o comms.o machine.o breakslights.o
 
@@ -78,4 +88,4 @@ pylint:
 	pylint -E breakslights.py render.py player.py
 
 clean:
-	rm -f *.o $(TARGETS)
+	rm -f *.o $(TARGETS) $(UNIT_TESTS)

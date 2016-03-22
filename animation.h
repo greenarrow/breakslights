@@ -39,6 +39,7 @@ struct animation {
 
 struct animation *animation_new();
 void animation_clear(struct animation *a);
+struct colour hltorgb(byte h, byte l);
 void animation_render(struct pixel *p, unsigned int bufp, struct animation *a);
 void animation_sync(struct animation *a, bool end);
 void animation_jog(struct animation *a);
