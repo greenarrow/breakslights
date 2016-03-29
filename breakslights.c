@@ -147,7 +147,9 @@ void loop()
 #else
 			machine_flush(&m);
 #endif
-			machine_tick(&m);
+			if (m.divider > 0)
+				machine_tick(&m);
+
 			draw = false;
 		}
 	}

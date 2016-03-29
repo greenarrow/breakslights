@@ -167,15 +167,15 @@ void machine_tick(struct machine *m)
 {
 	int i;
 
-	if (m->divider == 0)
-		return;
+	if (m->divider > 0) {
+		m->subticks++;
 
-	m->subticks++;
+		if (m->subticks < m->divider)
+			return;
 
-	if (m->subticks < m->divider)
-		return;
+		m->subticks = 0;
+	}
 
-	m->subticks = 0;
 	m->clock++;
 
 	if (!m->strobe_on && m->strobe_divider == 0)
