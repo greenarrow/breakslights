@@ -220,7 +220,6 @@ class Machine(object):
             return
 
         self.output.send("MI\n")
-        self.output.sync()
 
 def main():
     retries = 3
