@@ -16,7 +16,6 @@ R[xx] N[xx]                         assign animation
 
 # animation
 A[xx] L                             reset
-A[xx] J[0|1]                        step (back / forward)
 A[xx] Y[0|1]                        sync (start / end)
 A[xx] S[xx]                         set segments
 A[xx] I[0|1]                        set mirror segments
@@ -42,7 +41,6 @@ N = MIN
 X = MAX
 S = STEP
 D = DIVIDER
-J = JOG
 B = BOUNCE
 V = REVERSE
 

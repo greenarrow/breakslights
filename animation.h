@@ -21,7 +21,6 @@ struct property {
 
 	bool bounce;
 	bool reverse;
-	bool jog;
 
 	/* runtime state */
 	byte value;
@@ -42,7 +41,6 @@ void animation_clear(struct animation *a);
 struct colour hltorgb(byte h, byte l);
 void animation_render(struct pixel *p, unsigned int bufp, struct animation *a);
 void animation_sync(struct animation *a, bool end);
-void animation_jog(struct animation *a);
 void animation_tick(struct animation *a, int clock);
 void animation_validate(struct animation *a);
 

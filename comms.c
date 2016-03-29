@@ -163,10 +163,6 @@ static int handle_property(char **cursor, char p, struct animation *a)
 			return -1;
 		break;
 
-	case 'J':
-		a->ap[i].jog = readbool(cursor);
-		break;
-
 	case 'B':
 		a->ap[i].bounce = readbool(cursor);
 		break;
@@ -188,14 +184,6 @@ static int handle_animation(char **cursor, char cmd, struct animation *a)
 	switch (cmd) {
 	case 'L':
 		animation_clear(a);
-		break;
-
-	case 'J':
-		/* FIXME: reverse */
-		if (readbool(cursor))
-			animation_jog(a);
-		else
-			animation_jog(a);
 		break;
 
 	case 'Y':

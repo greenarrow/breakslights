@@ -39,7 +39,6 @@ void animation_clear(struct animation *a)
 
 		a->ap[p].bounce = false;
 		a->ap[p].reverse = false;
-		a->ap[p].jog = false;
 
 		a->ap[p].value = 0;
 		a->ap[p].bouncing = false;
@@ -353,22 +352,6 @@ static unsigned int period(struct animation *a, enum propertytype p)
 	default:
 		error("bad");
 		return 1;
-	}
-}
-
-/*
- * Manual advance triggered by a user button or sound event.
- * When divider = 0 then only jog will advance the property.
- *
- * FIXME: do we want to use dividers and a jog counter?
- */
-void animation_jog(struct animation *a)
-{
-	enum propertytype p;
-
-	for (p = 0; p < PROPERTIES; p++) {
-		if (a->ap[p].jog)
-			animation_tock(a, p, period(a, p));
 	}
 }
 
