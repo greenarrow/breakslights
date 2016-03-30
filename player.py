@@ -277,8 +277,21 @@ class Window(QtGui.QWidget):
         m.rings(1)
         a = breakslights.Animation(b, 0, 60)
 
-        box.addWidget(tabs)
-        box.addWidget(LiveControls(self))
+        tabs = QtGui.QTabWidget()
+        editor = AnimationEditor(self)
+        tabs.addTab(editor, "Animation Editor")
+        editor.set(a)
+
+        right = QtGui.QFrame(self)
+        right.setFrameShape(QtGui.QFrame.StyledPanel)
+        rightbox = QtGui.QVBoxLayout(right)
+        rightbox.addWidget(tabs)
+        rightbox.addWidget(LiveControls(self))
+
+        splitter = QtGui.QSplitter(QtCore.Qt.Horizontal)
+        box.addWidget(splitter)
+        splitter.addWidget(right)
+        box.addWidget(splitter)
 
 def main():
     app = QtGui.QApplication(sys.argv)
