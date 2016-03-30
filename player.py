@@ -212,6 +212,15 @@ class AnimationEditor(QtGui.QWidget):
         print "ok", value
         label.setText(str(value))
 
+    def setmirror(self, value):
+        self.animation.setmirror(value)
+
+    def setsegments(self, value):
+        self.animation.setsegments(value)
+
+    def sync(self, end):
+        self.animation.sync(end)
+
 class LiveControls(QtGui.QWidget):
     """"""
 
