@@ -212,6 +212,12 @@ class AnimationEditor(QtGui.QWidget):
         print "ok", value
         label.setText(str(value))
 
+    def dump(self):
+        fname = QtGui.QFileDialog.getSaveFileName(self)
+        f = open(fname, "w")
+        self.animation.dump(f)
+        f.close()
+
     def setmirror(self, value):
         self.animation.setmirror(value)
 
