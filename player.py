@@ -127,6 +127,7 @@ class AnimationEditor(QtGui.QWidget):
     def __init__(self, parent):
         super(AnimationEditor, self).__init__(parent)
 
+        self.animation = None
         box = QtGui.QVBoxLayout(self)
 
         label = QtGui.QLabel("no file loaded", self)
@@ -204,9 +205,18 @@ class AnimationEditor(QtGui.QWidget):
         frame = QtGui.QFrame(self)
         frame.setFrameShape(QtGui.QFrame.StyledPanel)
         framebox = QtGui.QHBoxLayout(frame)
-        editor = PropertyEditor(self)
-        framebox.addWidget(editor)
+        self.editor = PropertyEditor(self)
+        framebox.addWidget(self.editor)
         ebox.addWidget(frame)
+
+    def set(self, animation):
+        self.animation = animation
+
+    def toggled(self, radio, key):
+        if not radio.isChecked():
+            return
+
+        self.editor.set(self.animation.ap[key])
 
     def changed(self, label, value):
         print "ok", value
