@@ -81,6 +81,7 @@ class PropertyEditor(QtGui.QWidget):
                 continue
 
             self.widgets[k] = grid.add(breakslights.Property.names[k])
+            self.widgets[k].valueChanged.connect(partial(self.changed, k))
 
         buttons = QtGui.QVBoxLayout()
         box.addLayout(buttons)
@@ -92,6 +93,7 @@ class PropertyEditor(QtGui.QWidget):
             button = QtGui.QPushButton(breakslights.Property.names[k], self)
             buttons.addWidget(button)
             button.setCheckable(True)
+            button.clicked.connect(partial(self.changed, k))
             self.widgets[k] = button
 
     def set(self, property):
@@ -103,9 +105,21 @@ class PropertyEditor(QtGui.QWidget):
 
             w.setMaximum(property.maximum)
 
-    def changed(self, label, converter, value):
-        print "ok", value, ">", converter(value)
-        label.setText(str(converter(value)))
+        for k, w in self.widgets.iteritems():
+            if type(breakslights.Property.defaults[k]) != int:
+                continue
+
+            w.setValue(self.property.values[k])
+
+        for k, w in self.widgets.iteritems():
+            if type(breakslights.Property.defaults[k]) != bool:
+                continue
+
+            w.setChecked(self.property.values[k])
+
+    def changed(self, key, value):
+        print key, value
+        self.property.change(key, value)
 
 class AnimationEditor(QtGui.QWidget):
     """Editor for a complete animation."""
