@@ -267,8 +267,15 @@ class Window(QtGui.QWidget):
 
         box = QtGui.QVBoxLayout(self)
 
-        tabs = QtGui.QTabWidget()
-        tabs.addTab(AnimationEditor(self), "Animation Editor")
+        b = None
+
+        if len(sys.argv) > 1:
+            b = breakslights.Breakslights(sys.argv[1])
+
+        m = breakslights.Machine(b)
+        m.anims(1)
+        m.rings(1)
+        a = breakslights.Animation(b, 0, 60)
 
         box.addWidget(tabs)
         box.addWidget(LiveControls(self))
