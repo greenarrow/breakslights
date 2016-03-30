@@ -39,7 +39,7 @@ UNIT_TESTS = unit/hue
 REGRESSION_TESTS = tests/fills.lc tests/strobe.lc tests/chase.lc \
 	tests/mirror.lc tests/chopflash.lc \
 	tests/ripple.lc tests/shadows.lc tests/multiprop.lc \
-	tests/offset.lc
+	tests/offset.lc tests/limits.lc
 
 TARGETS = breakslights breakslights.elf breakslights.hex
 
