@@ -155,17 +155,6 @@ class AnimationEditor(QtGui.QWidget):
         buttons.addWidget(button)
         self.widgets["I"] = button
 
-        steps = QtGui.QHBoxLayout()
-        buttons.addLayout(steps)
-
-        button = QtGui.QPushButton("&<", self)
-        button.setEnabled(False)
-        steps.addWidget(button)
-
-        button = QtGui.QPushButton("&>", self)
-        button.setEnabled(False)
-        steps.addWidget(button)
-
         syncs = QtGui.QHBoxLayout()
         buttons.addLayout(syncs)
 
