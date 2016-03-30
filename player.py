@@ -138,33 +138,45 @@ class AnimationEditor(QtGui.QWidget):
         buttons = QtGui.QVBoxLayout()
         ebox.addLayout(buttons)
 
+        self.widgets = {}
+
         button = QtGui.QPushButton("&Clear", self)
+        button.setEnabled(False)
         buttons.addWidget(button)
 
-        button = QtGui.QPushButton("&Dump", self)
+        button = QtGui.QPushButton("&Save", self)
+        button.clicked.connect(self.dump)
         buttons.addWidget(button)
 
         button = QtGui.QPushButton("&Mirror", self)
         button.setCheckable(True)
+        button.clicked.connect(self.setmirror)
         buttons.addWidget(button)
+        self.widgets["I"] = button
 
         steps = QtGui.QHBoxLayout()
         buttons.addLayout(steps)
 
         button = QtGui.QPushButton("&<", self)
+        button.setEnabled(False)
         steps.addWidget(button)
 
         button = QtGui.QPushButton("&>", self)
+        button.setEnabled(False)
         steps.addWidget(button)
 
         syncs = QtGui.QHBoxLayout()
         buttons.addLayout(syncs)
 
         button = QtGui.QPushButton("&Start", self)
+        button.clicked.connect(partial(self.sync, False))
         syncs.addWidget(button)
+        self.widgets["Y0"] = button
 
         button = QtGui.QPushButton("&End", self)
+        button.clicked.connect(partial(self.sync, True))
         syncs.addWidget(button)
+        self.widgets["Y1"] = button
 
         grid = QtGui.QGridLayout()
         ebox.addLayout(grid)
@@ -172,12 +184,20 @@ class AnimationEditor(QtGui.QWidget):
         grid = SliderGrid(self)
         ebox.addWidget(grid)
         sliders = [grid.add("Segments", 1, RING_PIXELS / 2)]
+        sliders[0].valueChanged.connect(self.setsegments)
+        self.widgets["S"] = sliders[0]
 
         radios = QtGui.QVBoxLayout()
+
+        first = None
 
         for k in breakslights.Animation.keys:
             radio = QtGui.QRadioButton(breakslights.Animation.names[k], self)
             radios.addWidget(radio)
+            radio.toggled.connect(partial(self.toggled, radio, k))
+
+            if first is None:
+                first = radio
 
         ebox.addLayout(radios)
 
