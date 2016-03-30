@@ -50,6 +50,8 @@ class Property(object):
         ("S", "Step",       1,      int,    False,  True),
         ("B", "Bounce",     False,  bool,   False,  False),
         ("V", "Reverse",    False,  bool,   False,  False),
+        ("N", "Min",        0,      int,    False,  True),
+        ("X", "Max",        0,      int,    False,  True),
     )
 
     keys = [p[0] for p in properties]

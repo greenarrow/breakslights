@@ -11,6 +11,9 @@
 #include "animation.h"
 #include "pixel.h"
 
+#define MIN(X,Y) ((X) < (Y) ? (X) : (Y))
+#define MAX(X,Y) ((X) > (Y) ? (X) : (Y))
+
 #define HUE_REGION 40
 
 struct animation *animation_new()
@@ -224,38 +227,40 @@ void animation_render(struct pixel *p, unsigned int bufp, struct animation *a)
 	}
 }
 
-static void move(struct property *p, byte size, unsigned int delta)
+static void move(struct property *p, byte lower, byte upper, int delta)
 {
 	int new = p->value;
 
+	/* adjust incorrect starting point */
+	new = MAX(new, lower);
+	new = MIN(new, upper);
+
+	/* unbounded move */
 	if (p->reverse == p->bouncing)
 		new += delta;
 	else
 		new -= delta;
 
-	if (new < 0) {
-		if (p->bounce) {
-			p->bouncing = !p->bouncing;
-			p->value = -new;
-		} else {
-			p->value = new + size;
+	while (new < lower || new > upper) {
+		if (new > upper) {
+			if (p->bounce) {
+				p->bouncing = !p->bouncing;
+				new = upper - (new - upper);
+			} else {
+				new -= upper - lower + 1;
+			}
 		}
 
-		return;
-	}
-
-	if (new > size) {
-		if (p->bounce) {
-			p->bouncing = !p->bouncing;
-			p->value = size - (new - size);
-		} else {
-			p->value -= size;
+		if (new < lower) {
+			if (p->bounce) {
+				p->bouncing = !p->bouncing;
+				new = lower + (lower - new);
+			} else {
+				new += upper - lower + 1;
+			}
 		}
-
-		return;
 	}
 
-	debug("new %d", new);
 	p->value = new;
 }
 
@@ -295,7 +300,16 @@ static byte limit(struct animation *a, enum propertytype p)
 void animation_tock(struct animation *a, enum propertytype p,
 						unsigned int delta)
 {
-	move(&a->ap[p], limit(a, p), delta);
+	byte min = 0;
+	byte max = 0;
+
+	min = a->ap[p].min;
+	max = limit(a, p);
+
+	if (a->ap[p].max > 0)
+		max = a->ap[p].max;
+
+	move(&a->ap[p], min, max, delta);
 }
 
 void animation_sync(struct animation *a, bool end)
