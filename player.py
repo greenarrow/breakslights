@@ -240,24 +240,28 @@ class AnimationEditor(QtGui.QWidget):
 class LiveControls(QtGui.QWidget):
     """"""
 
-    def __init__(self, parent):
+    def __init__(self, parent, machine):
         super(LiveControls, self).__init__(parent)
 
+        self.machine = machine
         box = QtGui.QHBoxLayout(self)
 
         grid = SliderGrid(self)
         box.addWidget(grid)
-        sliders = [grid.add("Clock", 0, 255)]
+
+        slider = grid.add("Clock", 0, 255)
+        slider.valueChanged.connect(self.machine.divider)
+
+        slider = grid.add("Strobe", 0, 255)
+        slider.valueChanged.connect(self.machine.strobe)
 
         button = QtGui.QPushButton("Tick", self)
+        button.pressed.connect(self.machine.tick)
         box.addWidget(button)
 
         button = QtGui.QPushButton("Statistics", self)
+        button.clicked.connect(self.machine.stats)
         box.addWidget(button)
-
-    def changed(self, label, converter, value):
-        print "ok", value, ">", converter(value)
-        label.setText(str(converter(value)))
 
 class Window(QtGui.QWidget):
     def __init__(self):
@@ -286,7 +290,7 @@ class Window(QtGui.QWidget):
         right.setFrameShape(QtGui.QFrame.StyledPanel)
         rightbox = QtGui.QVBoxLayout(right)
         rightbox.addWidget(tabs)
-        rightbox.addWidget(LiveControls(self))
+        rightbox.addWidget(LiveControls(self, m))
 
         splitter = QtGui.QSplitter(QtCore.Qt.Horizontal)
         box.addWidget(splitter)

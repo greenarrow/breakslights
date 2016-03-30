@@ -215,6 +215,12 @@ class Machine(object):
 
         self.output.send("MD%s\n" % tohex(value))
 
+    def strobe(self, value):
+        if self.output is None:
+            return
+
+        self.output.send("MS%s\n" % tohex(value))
+
     def stats(self):
         if self.output is None:
             return
