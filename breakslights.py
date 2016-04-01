@@ -126,6 +126,8 @@ class Animation(object):
     maximums = dict((p[0], p[2]) for p in properties)
     defaults = dict((p[0], p[3]) for p in properties)
 
+    hmatch = re.compile(r"([A-Z])([A-Z]?)([0-9a-z]+)")
+
     def __init__(self, output, index, pixels):
         self.output = output
         self.index = index
@@ -147,6 +149,38 @@ class Animation(object):
 
         self.segments = 1
         self.mirror = False
+
+    @classmethod
+    def fromstream(cls, stream, output, index, pixels):
+        """This is an incomplete implementation of the PROTOCOL looking only
+        at Animation data only in floating point format."""
+
+        a = cls(output, index, pixels)
+
+        for line in stream:
+            # ignore anything but animation data
+            if not line.startswith("A00 "):
+                continue
+
+            match = cls.hmatch
+
+            for p, attribute, value in match.findall(line[4:]):
+                print (p, attribute, value)
+                value = int(value, 16)
+
+                if p == "S":
+                    a.segments = value
+
+                elif p == "I":
+                    a.mirror = value == 1
+
+                elif p in cls.keys:
+                    a.ap[p].values[attribute] = value
+
+                else:
+                    print "bad", line
+
+        return a
 
     def setsegments(self, value):
         cmd = "A%s S%s\n" % (tohex(self.index), tohex(value))
