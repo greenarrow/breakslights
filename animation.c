@@ -304,10 +304,15 @@ void animation_tock(struct animation *a, enum propertytype p,
 	byte max = 0;
 
 	min = a->ap[p].min;
-	max = limit(a, p);
+	max = a->ap[p].max;
 
-	if (a->ap[p].max > 0)
-		max = a->ap[p].max;
+	if (max == 0)
+		max = limit(a, p);
+	else
+		max = MIN(max, limit(a, p));
+
+	if (min > max)
+		min = max;
 
 	move(&a->ap[p], min, max, delta);
 }
@@ -377,7 +382,7 @@ void animation_tick(struct animation *a, int clock)
 	for (p = 0; p < PROPERTIES; p++) {
 		/* property is not animated */
 		if (a->ap[p].divider == 0) {
-			a->ap[p].value = a->ap[p].constant;
+			a->ap[p].value = MIN(limit(a, p), a->ap[p].constant);
 			continue;
 		}
 
