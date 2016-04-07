@@ -99,34 +99,43 @@ static char readhex(char **cursor, byte *result)
 	return 0;
 }
 
-static byte getproperty(const char p)
+static bool getproperty(const char p, byte *value)
 {
 	switch (p) {
 	case 'F':
-		return FILL;
+		*value = FILL;
+		break;
 	case 'O':
-		return ROTATION;
+		*value = ROTATION;
+		break;
 	case 'T':
-		return OFFSET;
+		*value = OFFSET;
+		break;
 	case 'H':
-		return HUE;
+		*value = HUE;
+		break;
 	case 'B':
-		return LIGHTNESS;
+		*value = LIGHTNESS;
+		break;
 	case 'U':
-		return HUE2;
+		*value = HUE2;
+		break;
 	case 'G':
-		return LIGHTNESS2;
+		*value = LIGHTNESS2;
+		break;
 	default:
-		return NONE;
+		return false;
 	}
+
+	return true;
 }
 
 static int handle_property(char **cursor, char p, struct animation *a)
 {
-	byte i = getproperty(p);
+	byte i;
 	char v;
 
-	if (i == NONE) {
+	if (!getproperty(p, &i)) {
 		debug("property %c does not exist", p);
 		return -1;
 	}

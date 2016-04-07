@@ -45,7 +45,6 @@ struct colour {
 };
 
 enum propertytype {
-	NONE,
 	FILL,
 	ROTATION,
 	OFFSET,

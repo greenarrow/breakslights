@@ -345,9 +345,6 @@ void animation_sync(struct animation *a, bool end)
 static unsigned int period(struct animation *a, enum propertytype p)
 {
 	switch (p) {
-	case NONE:
-		return 1;
-
 	case FILL:
 		return a->ap[p].step * a->segments;
 
