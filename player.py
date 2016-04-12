@@ -625,28 +625,48 @@ class AnimationEditor(QtGui.QWidget):
 class Library(QtGui.QWidget):
     """Library of available animations."""
 
-    def __init__(self, parent, b):
+    def __init__(self, parent, animedit):
         super(Library, self).__init__(parent)
 
-        self.b = b
+        self.animedit = animedit
         box = QtGui.QHBoxLayout(self)
 
-        tree = QtGui.QTreeView()
-        box.addWidget(tree)
+        self.tree = QtGui.QTreeView()
+        box.addWidget(self.tree)
 
-        tree.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
+        self.tree.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
+        self.tree.customContextMenuRequested.connect(self.menu)
 
         model = QtGui.QFileSystemModel()
-        tree.setModel(model)
+        self.tree.setModel(model)
 
         model.setReadOnly(True)
         model.setRootPath(QtCore.QDir.currentPath())
 
         for c in range(1, model.columnCount()):
-            tree.hideColumn(c)
+            self.tree.hideColumn(c)
 
-        tree.setRootIndex(model.index(QtCore.QDir.currentPath()))
-        tree.setDragEnabled(True)
+        self.tree.setRootIndex(model.index(QtCore.QDir.currentPath()))
+        self.tree.setDragEnabled(True)
+        self.tree.doubleClicked.connect(self.load)
+
+    def menu(self, position):
+        """
+        indexes = self.tree.selectedIndexes()
+        if len(indexes) > 0:
+
+            level = 0
+            index = indexes[0]
+            while index.parent().isValid():
+                index = index.parent()
+                level += 1
+        """
+        menu = QtGui.QMenu()
+        menu.addAction(self.tr("Edit"))
+        menu.exec_(self.tree.viewport().mapToGlobal(position))
+
+    def load(self, index):
+        self.animedit.load(index.model().filePath(index))
 
 class LiveControls(QtGui.QWidget):
     """Panel of modal (machine) controls."""
@@ -703,9 +723,11 @@ class Window(QtGui.QWidget):
         left = QtGui.QFrame(self)
         left.setFrameShape(QtGui.QFrame.StyledPanel)
         leftbox = QtGui.QHBoxLayout(left)
-        leftbox.addWidget(Library(self, b))
 
         editor = AnimationEditor(self, b, self.controller)
+
+        library = Library(self, editor)
+        leftbox.addWidget(library)
 
         tabs = QtGui.QTabWidget()
 
