@@ -226,6 +226,32 @@ class AnimationEditor(QtGui.QWidget):
     def sync(self, end):
         self.animation.sync(end)
 
+class Library(QtGui.QWidget):
+    """Library of available animations."""
+
+    def __init__(self, parent, b):
+        super(Library, self).__init__(parent)
+
+        self.b = b
+        box = QtGui.QHBoxLayout(self)
+
+        tree = QtGui.QTreeView()
+        box.addWidget(tree)
+
+        tree.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
+
+        model = QtGui.QFileSystemModel()
+        tree.setModel(model)
+
+        model.setReadOnly(True)
+        model.setRootPath(QtCore.QDir.currentPath())
+
+        for c in range(1, model.columnCount()):
+            tree.hideColumn(c)
+
+        tree.setRootIndex(model.index(QtCore.QDir.currentPath()))
+        tree.setDragEnabled(True)
+
 class LiveControls(QtGui.QWidget):
     """"""
 
@@ -273,6 +299,11 @@ class Window(QtGui.QWidget):
         m.rings(1)
         a = breakslights.Animation(b, 0, 60)
 
+        left = QtGui.QFrame(self)
+        left.setFrameShape(QtGui.QFrame.StyledPanel)
+        leftbox = QtGui.QHBoxLayout(left)
+        leftbox.addWidget(Library(self, b))
+
         tabs = QtGui.QTabWidget()
         editor = AnimationEditor(self)
         tabs.addTab(editor, "Animation Editor")
@@ -286,6 +317,7 @@ class Window(QtGui.QWidget):
 
         splitter = QtGui.QSplitter(QtCore.Qt.Horizontal)
         box.addWidget(splitter)
+        splitter.addWidget(left)
         splitter.addWidget(right)
         box.addWidget(splitter)
 
