@@ -221,6 +221,12 @@ class Machine(object):
 
         self.output.send("MS%s\n" % tohex(value))
 
+    def chase(self, value):
+        if self.output is None:
+            return
+
+        self.output.send("MC%s\n" % tohex(value))
+
     def stats(self):
         if self.output is None:
             return

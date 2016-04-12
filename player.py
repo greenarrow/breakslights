@@ -244,6 +244,9 @@ class LiveControls(QtGui.QWidget):
         slider = grid.add("Strobe", 0, 255)
         slider.valueChanged.connect(self.machine.strobe)
 
+        slider = grid.add("Chase", 0, 255)
+        slider.valueChanged.connect(self.machine.chase)
+
         button = QtGui.QPushButton("Tick", self)
         button.pressed.connect(self.machine.tick)
         box.addWidget(button)
