@@ -70,7 +70,9 @@ class Property(object):
         self.values = dict(self.defaults)
         self.values["C"] = default
 
-    def change(self, code, value):
+    def send(self, code):
+        value = self.values[code]
+
         if self.types[code] == int:
             val = tohex(value)
 
@@ -82,13 +84,19 @@ class Property(object):
         else:
             assert False
 
-        self.values[code] = value
-
         cmd = "A%s %s%s%s\n" % (tohex(self.anim), self.code, code, val)
         sys.stdout.write(cmd)
 
         if self.output is not None:
             self.output.send(cmd)
+
+    def sendall(self):
+        for k in self.keys:
+            self.send(k)
+
+    def change(self, code, value):
+        self.values[code] = value
+        self.send(code)
 
     def dump(self, stream=sys.stdout):
         for k in self.keys:
