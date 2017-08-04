@@ -1,3 +1,3 @@
 [submodule "alsaseq"]
 	path = alsaseq
-	url = ./alsaseq
+	url = https://github.com/ppaez/alsaseq.git
