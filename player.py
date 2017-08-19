@@ -413,6 +413,31 @@ class SliderGrid(QtGui.QWidget):
 
         return slider
 
+class ConfigEditor(QtGui.QWidget):
+    def __init__(self, parent, controller):
+        super(ConfigEditor, self).__init__(parent)
+
+        self.controller = controller
+
+        box = QtGui.QVBoxLayout(self)
+        combo = QtGui.QComboBox(self)
+        box.addWidget(combo)
+        combo.addItem("None", None)
+
+        for name, conn in self.controller.ports():
+            combo.addItem(name, conn)
+
+        combo.currentIndexChanged.connect(partial(self.connectMIDI, combo))
+
+    def connectMIDI(self, combo, index):
+        data = combo.itemData(index).toPyObject()
+
+        if data is None:
+            self.controller.disconnect()
+            return
+
+        self.controller.connect(data[0], data[1])
+
 class PropertyEditor(QtGui.QWidget):
     """Editor for a single animation property."""
 
