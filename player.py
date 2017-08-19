@@ -501,9 +501,10 @@ class PropertyEditor(QtGui.QWidget):
 class AnimationEditor(QtGui.QWidget):
     """Editor for a complete animation."""
 
-    def __init__(self, parent, controller):
+    def __init__(self, parent, b, controller):
         super(AnimationEditor, self).__init__(parent)
 
+        self.breakslights = b
         self.animation = None
         box = QtGui.QVBoxLayout(self)
 
@@ -580,6 +581,21 @@ class AnimationEditor(QtGui.QWidget):
 
     def set(self, animation):
         self.animation = animation
+
+        self.widgets["I"].setChecked(animation.mirror)
+        self.widgets["S"].setValue(animation.segments)
+
+        self.radiogrp.buttons()[0].setChecked(True)
+        self.editor.set(animation.ap[animation.keys[0]])
+
+        animation.clear()
+        animation.sendall()
+
+    def load(self, filename):
+        animation = breakslights.Animation.fromstream(open(filename),
+                                                      self.breakslights,
+                                                      0, RING_PIXELS)
+        self.set(animation)
 
     def toggled(self, radio, key):
         if not radio.isChecked():
@@ -689,9 +705,10 @@ class Window(QtGui.QWidget):
         leftbox = QtGui.QHBoxLayout(left)
         leftbox.addWidget(Library(self, b))
 
+        editor = AnimationEditor(self, b, self.controller)
 
         tabs = QtGui.QTabWidget()
-        editor = AnimationEditor(self, self.controller)
+
         tabs.addTab(editor, "Animation Editor")
         editor.set(a)
 
