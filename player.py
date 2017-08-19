@@ -633,7 +633,7 @@ class Library(QtGui.QWidget):
         tree.setDragEnabled(True)
 
 class LiveControls(QtGui.QWidget):
-    """"""
+    """Panel of modal (machine) controls."""
 
     def __init__(self, parent, machine, controller):
         super(LiveControls, self).__init__(parent)
