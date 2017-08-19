@@ -190,6 +190,20 @@ class Animation(object):
 
         return a
 
+    def clear(self):
+        cmd = "A%s L\n" % tohex(self.index)
+        sys.stdout.write(cmd)
+
+        if self.output is not None:
+            self.output.send(cmd)
+
+    def sendall(self):
+        # FIXME: hack
+        self.setsegments(self.segments)
+
+        for p in self.ap.itervalues():
+            p.sendall()
+
     def setsegments(self, value):
         cmd = "A%s S%s\n" % (tohex(self.index), tohex(value))
         sys.stdout.write(cmd)
