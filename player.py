@@ -101,7 +101,7 @@ class PropertyEditor(QtGui.QWidget):
 
         for k, w in self.widgets.iteritems():
             if not breakslights.Property.limited[k]:
-                    continue
+                continue
 
             w.setMaximum(property.maximum)
 
