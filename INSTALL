@@ -1,0 +1,5 @@
+yum install python-alsa
+
+cd alsaseq
+python setup.py build
+python setup.py install --install-lib=.. --install-data=/tmp

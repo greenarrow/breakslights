@@ -1,0 +1,3 @@
+[submodule "alsaseq"]
+	path = alsaseq
+	url = ./alsaseq

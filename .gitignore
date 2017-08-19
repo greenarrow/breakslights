@@ -4,3 +4,7 @@ breakslights.elf
 breakslights.hex
 *.o
 *.d
+alsamidi.py
+alsaseq-0.4.2-py2.6.egg-info
+alsaseq.so
+midiinstruments.py
