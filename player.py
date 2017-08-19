@@ -441,7 +441,7 @@ class ConfigEditor(QtGui.QWidget):
 class PropertyEditor(QtGui.QWidget):
     """Editor for a single animation property."""
 
-    def __init__(self, parent):
+    def __init__(self, parent, controller):
         super(PropertyEditor, self).__init__(parent)
 
         box = QtGui.QHBoxLayout(self)
@@ -457,6 +457,7 @@ class PropertyEditor(QtGui.QWidget):
 
             self.widgets[k] = grid.add(breakslights.Property.names[k])
             self.widgets[k].valueChanged.connect(partial(self.changed, k))
+            controller.bind("P_%s" % k, self.widgets[k])
 
         buttons = QtGui.QVBoxLayout()
         box.addLayout(buttons)
@@ -469,6 +470,7 @@ class PropertyEditor(QtGui.QWidget):
             buttons.addWidget(button)
             button.setCheckable(True)
             button.clicked.connect(partial(self.changed, k))
+            controller.bind("P_%s" % k, button)
             self.widgets[k] = button
 
     def set(self, property):
@@ -499,7 +501,7 @@ class PropertyEditor(QtGui.QWidget):
 class AnimationEditor(QtGui.QWidget):
     """Editor for a complete animation."""
 
-    def __init__(self, parent):
+    def __init__(self, parent, controller):
         super(AnimationEditor, self).__init__(parent)
 
         self.animation = None
@@ -527,6 +529,7 @@ class AnimationEditor(QtGui.QWidget):
         button = QtGui.QPushButton("&Mirror", self)
         button.setCheckable(True)
         button.clicked.connect(self.setmirror)
+        controller.bind("A_MIRROR", button)
         buttons.addWidget(button)
         self.widgets["I"] = button
 
@@ -535,11 +538,13 @@ class AnimationEditor(QtGui.QWidget):
 
         button = QtGui.QPushButton("&Start", self)
         button.clicked.connect(partial(self.sync, False))
+        controller.bind("A_SYNC_START", button)
         syncs.addWidget(button)
         self.widgets["Y0"] = button
 
         button = QtGui.QPushButton("&End", self)
         button.clicked.connect(partial(self.sync, True))
+        controller.bind("A_SYNC_END", button)
         syncs.addWidget(button)
         self.widgets["Y1"] = button
 
@@ -550,26 +555,26 @@ class AnimationEditor(QtGui.QWidget):
         ebox.addWidget(grid)
         sliders = [grid.add("Segments", 1, RING_PIXELS / 2)]
         sliders[0].valueChanged.connect(self.setsegments)
+        controller.bind("A_SEGMENTS", sliders[0])
         self.widgets["S"] = sliders[0]
 
         radios = QtGui.QVBoxLayout()
-
-        first = None
+        ebox.addLayout(radios)
+        self.radiogrp = QtGui.QButtonGroup(self)
 
         for k in breakslights.Animation.keys:
             radio = QtGui.QRadioButton(breakslights.Animation.names[k], self)
+            self.radiogrp.addButton(radio)
             radios.addWidget(radio)
             radio.toggled.connect(partial(self.toggled, radio, k))
 
-            if first is None:
-                first = radio
-
-        ebox.addLayout(radios)
+        controller.bind("A_PROPERTY_PREV", self.radiogrp, True)
+        controller.bind("A_PROPERTY_NEXT", self.radiogrp, False)
 
         frame = QtGui.QFrame(self)
         frame.setFrameShape(QtGui.QFrame.StyledPanel)
         framebox = QtGui.QHBoxLayout(frame)
-        self.editor = PropertyEditor(self)
+        self.editor = PropertyEditor(self, controller)
         framebox.addWidget(self.editor)
         ebox.addWidget(frame)
 
@@ -630,30 +635,32 @@ class Library(QtGui.QWidget):
 class LiveControls(QtGui.QWidget):
     """"""
 
-    def __init__(self, parent, machine):
+    def __init__(self, parent, machine, controller):
         super(LiveControls, self).__init__(parent)
 
-        self.machine = machine
         box = QtGui.QHBoxLayout(self)
 
         grid = SliderGrid(self)
         box.addWidget(grid)
 
         slider = grid.add("Clock", 0, 255)
-        slider.valueChanged.connect(self.machine.divider)
+        slider.valueChanged.connect(machine.divider)
+        controller.bind("M_DIVIDER", slider)
 
         slider = grid.add("Strobe", 0, 255)
-        slider.valueChanged.connect(self.machine.strobe)
+        slider.valueChanged.connect(machine.strobe)
+        controller.bind("M_STROBE", slider)
 
         slider = grid.add("Chase", 0, 255)
-        slider.valueChanged.connect(self.machine.chase)
+        slider.valueChanged.connect(machine.chase)
+        controller.bind("M_CHASE", slider)
 
         button = QtGui.QPushButton("Tick", self)
-        button.pressed.connect(self.machine.tick)
+        button.pressed.connect(machine.tick)
         box.addWidget(button)
 
         button = QtGui.QPushButton("Statistics", self)
-        button.clicked.connect(self.machine.stats)
+        button.clicked.connect(machine.stats)
         box.addWidget(button)
 
 class Window(QtGui.QWidget):
@@ -674,21 +681,28 @@ class Window(QtGui.QWidget):
         m.rings(1)
         a = breakslights.Animation(b, 0, 60)
 
+        self.controller = MIDIController(self)
+        self.controller.loadconfig("midi.conf")
+
         left = QtGui.QFrame(self)
         left.setFrameShape(QtGui.QFrame.StyledPanel)
         leftbox = QtGui.QHBoxLayout(left)
         leftbox.addWidget(Library(self, b))
 
+
         tabs = QtGui.QTabWidget()
-        editor = AnimationEditor(self)
+        editor = AnimationEditor(self, self.controller)
         tabs.addTab(editor, "Animation Editor")
         editor.set(a)
+
+        config = ConfigEditor(self, self.controller)
+        tabs.addTab(config, "Config")
 
         right = QtGui.QFrame(self)
         right.setFrameShape(QtGui.QFrame.StyledPanel)
         rightbox = QtGui.QVBoxLayout(right)
         rightbox.addWidget(tabs)
-        rightbox.addWidget(LiveControls(self, m))
+        rightbox.addWidget(LiveControls(self, m, self.controller))
 
         splitter = QtGui.QSplitter(QtCore.Qt.Horizontal)
         box.addWidget(splitter)
