@@ -100,9 +100,6 @@ class Property(object):
 
     def dump(self, stream=sys.stdout):
         for k in self.keys:
-            if self.values[k] == self.defaults[k]:
-                continue
-
             if self.types[k] == int:
                 val = tohex(self.values[k])
 
